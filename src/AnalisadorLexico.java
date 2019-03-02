@@ -33,19 +33,19 @@ public class AnalisadorLexico {
                         estado = 3;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if ('1' <= proximo && proximo <= '9') {
-                        estado = 7;
+                        estado = 6;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '-') {
-                        estado = 8;
+                        estado = 7;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '\"') {
-                        estado = 9;
+                        estado = 8;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '<') {
-                        estado = 10;
+                        estado = 9;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '>') {
-                        estado = 11;
+                        estado = 10;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '=' || proximo == '(' || proximo == ')' || proximo == ',' ||
                             proximo == '+' || proximo == '-' || proximo == '*' || proximo == '/' ||
@@ -140,10 +140,10 @@ public class AnalisadorLexico {
                     } else if (proximo == '=') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.MAIOR_IGUAL;
+                        token = Token.MENOR_IGUAL;
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Token.MAIOR;
+                        token = Token.MENOR;
                     }
                     break;
                 case 10:
