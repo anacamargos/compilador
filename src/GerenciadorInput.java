@@ -30,7 +30,7 @@ public class GerenciadorInput {
         }
 
         if (!scanner.hasNext()) {
-            return Constantes.EOF;
+            return Globais.EOF;
         }
 
         proximoCaractere = scanner.next().toLowerCase().charAt(0);

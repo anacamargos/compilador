@@ -12,13 +12,14 @@ public class AnalisadorLexico {
         this.gerenciadorInput = gerenciadorInput;
     }
 
-    InformacaoLexica proximo() throws ExcecaoLexica {
+    InformacaoLexica proximo() throws Exception {
         int estado = 0;
         String lexema = "";
         Token token = null;
+        TipoConstante tipoConstante = null;
         while (estado != ESTADO_FINAL) {
             char proximo = gerenciadorInput.olharProximo();
-            if (!Constantes.contemCaractere(proximo) && proximo != Constantes.EOF) {
+            if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
                 throw new ExcecaoLexica("Caractere inválido");
             }
             switch (estado) {
@@ -50,10 +51,16 @@ public class AnalisadorLexico {
                     } else if (proximo == '=' || proximo == '(' || proximo == ')' || proximo == ',' ||
                             proximo == '+' || proximo == '-' || proximo == '*' || proximo == '/' ||
                             proximo == ';' || proximo == '{' || proximo == '}' || proximo == '[' ||
-                            proximo == ']' || proximo == '%' || proximo == Constantes.EOF) {
+                            proximo == ']' || proximo == '%' || proximo == Globais.EOF) {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = acharToken1Caractere(proximo);
+                        token = Globais.inserirOuBuscar(lexema);
+                    } else if ('a' <= proximo && proximo <= 'z') {
+                        estado = 11;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '.' || proximo == '_') {
+                        estado = 12;
+                        lexema += gerenciadorInput.consumirProximo();
                     } else {
                         throw new ExcecaoLexica("Input inválido");
                     }
@@ -70,7 +77,8 @@ public class AnalisadorLexico {
                     if (proximo == '\'') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.CHAR;
+                        token = token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
+                        tipoConstante = TipoConstante.CHAR;
                     } else {
                         throw new ExcecaoLexica("Input inválido");
                     }
@@ -83,7 +91,9 @@ public class AnalisadorLexico {
                         estado = 6;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        estado = ESTADO_FINAL;
+                        token = token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
                     }
                     break;
                 case 4:
@@ -99,6 +109,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
                     } else {
                         throw new ExcecaoLexica("Input inválido");
                     }
@@ -110,6 +121,7 @@ public class AnalisadorLexico {
                     } else {
                         estado = ESTADO_FINAL;
                         token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
                     }
                     break;
                 case 7:
@@ -128,6 +140,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.STRING;
                     } else {
                         throw new ExcecaoLexica("Input inválido");
                     }
@@ -136,24 +149,53 @@ public class AnalisadorLexico {
                     if (proximo == '>') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.DIFERENTE;
+                        token = Globais.inserirOuBuscar(lexema);
                     } else if (proximo == '=') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.MENOR_IGUAL;
+                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Token.MENOR;
+                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
                 case 10:
                     if (proximo == '=') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.MAIOR_IGUAL;
+                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Token.MAIOR;
+                        token = Globais.inserirOuBuscar(lexema);
+                    }
+                    break;
+                case 11:
+                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z') ||
+                            proximo == '.' || proximo == '_') {
+                        estado = 13;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = ESTADO_FINAL;
+                        token = Globais.inserirOuBuscar(lexema);
+                    }
+                    break;
+                case 12:
+                    if (proximo == '.' || proximo == '_') {
+                        estado = 12;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z')) {
+                        estado = 13;
+                        lexema += gerenciadorInput.consumirProximo();
+                    }
+                    break;
+                case 13:
+                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z') ||
+                            proximo == '.' || proximo == '_') {
+                        estado = 13;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = ESTADO_FINAL;
+                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
                 default:
@@ -162,28 +204,7 @@ public class AnalisadorLexico {
             }
         }
         assert (token != null);
-        return new InformacaoLexica(token, lexema);
-    }
-
-    private Token acharToken1Caractere(char c) {
-        switch (c) {
-            case '=': return Token.IGUAL;
-            case '(': return Token.ABRE_PARENTESE;
-            case ')': return Token.FECHA_PARENTESE;
-            case ',': return Token.VIRGULA;
-            case '+': return Token.SOMA;
-            case '-': return Token.SUBTRACAO;
-            case '*': return Token.ASTERISCO;
-            case '/': return Token.BARRA;
-            case ';': return Token.PONTO_E_VIRGULA;
-            case '{': return Token.ABRE_CHAVE;
-            case '}': return Token.FECHA_CHAVE;
-            case '[': return Token.ABRE_COLCHETE;
-            case ']': return Token.FECHA_PARENTESE;
-            case '%': return Token.RESTO;
-            case Constantes.EOF: return Token.EOF;
-        }
-        return null;
+        return new InformacaoLexica(token, lexema, tipoConstante);
     }
 
 }
