@@ -7,7 +7,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testCaractere() {
         GerenciadorInput gi = new GerenciadorInput("'a'");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "'a'", TipoConstante.CHAR))
+        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "a", TipoConstante.CHAR))
     }
 
     void test0x() {
@@ -44,7 +44,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testString() {
         GerenciadorInput gi = new GerenciadorInput("\"oi\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"oi\"", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "oi", TipoConstante.STRING))
 
     }
 
@@ -57,13 +57,13 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testString3() {
         GerenciadorInput gi = new GerenciadorInput("\"\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"\"", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "", TipoConstante.STRING))
     }
 
     void testString4() {
         GerenciadorInput gi = new GerenciadorInput("\"oi tchau\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"oi tchau\"", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "oi tchau", TipoConstante.STRING))
     }
 
     void testString5() {
@@ -161,6 +161,78 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         AnalisadorLexico al = new AnalisadorLexico(gi);
         assert(al.proximo() == new InformacaoLexica(Token.MAIOR_IGUAL, ">="));
         assert(al.proximo() == new InformacaoLexica(Token.EOF, "" + Globais.EOF));
+    }
+
+    void testComentario() {
+        GerenciadorInput gi = new GerenciadorInput("/* assd */ +");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.SOMA, "+"));
+        assert(al.proximo() == new InformacaoLexica(Token.EOF, "" + Globais.EOF));
+
+    }
+
+    void testComentario2() {
+        GerenciadorInput gi = new GerenciadorInput("/*assd*/+");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.SOMA, "+"));
+        assert(al.proximo() == new InformacaoLexica(Token.EOF, "" + Globais.EOF));
+    }
+
+    void testComentario3() {
+        GerenciadorInput gi = new GerenciadorInput("for /*assd*/ integer");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.FOR, "for"));
+        assert(al.proximo() == new InformacaoLexica(Token.INTEGER, "integer"));
+        assert(al.proximo() == new InformacaoLexica(Token.EOF, "" + Globais.EOF));
+    }
+
+
+    void testExemplo1() {
+        File f = new File("/Users/augusto/Developer/compilador/testes/exemplo1.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+
+        assert(al.proximo() == new InformacaoLexica(Token.VAR, "var"));
+        assert(al.proximo() == new InformacaoLexica(Token.INTEGER, "integer"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "n"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.CHAR, "char"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.ABRE_COLCHETE, "["));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "40", TipoConstante.INTEGER));
+        assert(al.proximo() == new InformacaoLexica(Token.FECHA_COLCHETE, "]"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.CONST, "const"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "maxiter")); // ver com o Alexei se existe diferença em MAXITER e maxiter
+        assert(al.proximo() == new InformacaoLexica(Token.IGUAL, "="));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "10", TipoConstante.INTEGER));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.WRITE, "write"));
+        assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "Digite seu nome: ", TipoConstante.STRING));
+        assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.READLN, "readln"));
+        assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.FOR, "for"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "n"));
+        assert(al.proximo() == new InformacaoLexica(Token.IGUAL, "="));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "1", TipoConstante.INTEGER));
+        assert(al.proximo() == new InformacaoLexica(Token.TO, "to"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "maxiter"));
+        assert(al.proximo() == new InformacaoLexica(Token.DO, "do"));
+        assert(al.proximo() == new InformacaoLexica(Token.ABRE_CHAVE, "{"));
+        assert(al.proximo() == new InformacaoLexica(Token.WRITELN, "writeln"));
+        assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "Ola' ", TipoConstante.STRING));
+        assert(al.proximo() == new InformacaoLexica(Token.VIRGULA, ","));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+        assert(al.proximo() == new InformacaoLexica(Token.FECHA_CHAVE, "}"));
     }
 
 

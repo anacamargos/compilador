@@ -5,6 +5,7 @@ import java.util.Arrays;
  */
 public class AnalisadorLexico {
     GerenciadorInput gerenciadorInput;
+    private static final int ESTADO_INICIAL = 0;
     private static final int ESTADO_FINAL = 75;
 
 
@@ -13,23 +14,23 @@ public class AnalisadorLexico {
     }
 
     InformacaoLexica proximo() throws Exception {
-        int estado = 0;
+        int estado = ESTADO_INICIAL;
         String lexema = "";
         Token token = null;
         TipoConstante tipoConstante = null;
         while (estado != ESTADO_FINAL) {
             char proximo = gerenciadorInput.olharProximo();
             if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
-                throw new ExcecaoLexica("Caractere inválido");
+                throw new ExcecaoLexica("Caractere inválido " + proximo);
             }
             switch (estado) {
                 case 0:
-                    if (proximo == ' ') {
+                    if (Character.isWhitespace(proximo)) {
                         estado = 0;
                         gerenciadorInput.consumirProximo();
                     } else if (proximo == '\'') {
                         estado = 1;
-                        lexema += gerenciadorInput.consumirProximo();
+                         gerenciadorInput.consumirProximo();
                     } else if (proximo == '0') {
                         estado = 3;
                         lexema += gerenciadorInput.consumirProximo();
@@ -41,7 +42,7 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '\"') {
                         estado = 8;
-                        lexema += gerenciadorInput.consumirProximo();
+                        gerenciadorInput.consumirProximo();
                     } else if (proximo == '<') {
                         estado = 9;
                         lexema += gerenciadorInput.consumirProximo();
@@ -49,7 +50,7 @@ public class AnalisadorLexico {
                         estado = 10;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '=' || proximo == '(' || proximo == ')' || proximo == ',' ||
-                            proximo == '+' || proximo == '-' || proximo == '*' || proximo == '/' ||
+                            proximo == '+' || proximo == '-' || proximo == '*' ||
                             proximo == ';' || proximo == '{' || proximo == '}' || proximo == '[' ||
                             proximo == ']' || proximo == '%' || proximo == Globais.EOF) {
                         estado = ESTADO_FINAL;
@@ -60,6 +61,9 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '.' || proximo == '_') {
                         estado = 12;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '/') {
+                        estado = 14;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
                         throw new ExcecaoLexica("Input inválido");
@@ -76,7 +80,7 @@ public class AnalisadorLexico {
                 case 2:
                     if (proximo == '\'') {
                         estado = ESTADO_FINAL;
-                        lexema += gerenciadorInput.consumirProximo();
+                        gerenciadorInput.consumirProximo();
                         token = token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
                         tipoConstante = TipoConstante.CHAR;
                     } else {
@@ -138,7 +142,7 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '"') {
                         estado = ESTADO_FINAL;
-                        lexema += gerenciadorInput.consumirProximo();
+                        gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.STRING;
                     } else {
@@ -196,6 +200,33 @@ public class AnalisadorLexico {
                     } else {
                         estado = ESTADO_FINAL;
                         token = Globais.inserirOuBuscar(lexema);
+                    }
+                    break;
+                case 14:
+                    if (proximo == '*') {
+                        estado = 15;
+                        lexema = ""; // como é um comentário resetamos o lexema
+                        gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = ESTADO_FINAL;
+                        token = Globais.inserirOuBuscar(lexema);
+                    }
+                    break;
+                case 15:
+                    if (proximo == '*') {
+                        estado = 16;
+                        gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = 15;
+                        gerenciadorInput.consumirProximo();
+                    }
+                    break;
+                case 16:
+                    if (proximo == '/') {
+                        estado = ESTADO_INICIAL;
+                        gerenciadorInput.consumirProximo();
+                    } else {
+                        throw new ExcecaoLexica("Input inválido");
                     }
                     break;
                 default:
