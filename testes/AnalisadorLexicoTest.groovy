@@ -1,3 +1,5 @@
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * Created by augusto on 02/03/19.
@@ -200,7 +202,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
 
 
     void testExemplo1() {
-        File f = new File("/Users/augusto/Developer/compilador/testes/exemplo1.l")
+        File f = new File("testes/exemplo1.l")
         GerenciadorInput gi = new GerenciadorInput(f)
         AnalisadorLexico al = new AnalisadorLexico(gi);
 
