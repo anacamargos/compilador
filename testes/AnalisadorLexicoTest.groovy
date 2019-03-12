@@ -7,7 +7,19 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testCaractere() {
         GerenciadorInput gi = new GerenciadorInput("'a'");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "a", TipoConstante.CHAR))
+        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\'a\'", TipoConstante.CHAR))
+    }
+
+    void testCaractere2() {
+        GerenciadorInput gi = new GerenciadorInput("'A'");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\'A\'", TipoConstante.CHAR))
+    }
+
+    void testCaractere3() {
+        GerenciadorInput gi = new GerenciadorInput("'1'");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\'1\'", TipoConstante.CHAR))
     }
 
     void test0x() {
@@ -44,7 +56,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testString() {
         GerenciadorInput gi = new GerenciadorInput("\"oi\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "oi", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"oi\"", TipoConstante.STRING))
 
     }
 
@@ -57,13 +69,13 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testString3() {
         GerenciadorInput gi = new GerenciadorInput("\"\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"\"", TipoConstante.STRING))
     }
 
     void testString4() {
         GerenciadorInput gi = new GerenciadorInput("\"oi tchau\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "oi tchau", TipoConstante.STRING))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"oi tchau\"", TipoConstante.STRING))
     }
 
     void testString5() {
@@ -209,7 +221,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.WRITE, "write"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "Digite seu nome: ", TipoConstante.STRING));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"Digite seu nome: \"", TipoConstante.STRING));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.READLN, "readln"));
@@ -227,7 +239,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_CHAVE, "{"));
         assert(al.proximo() == new InformacaoLexica(Token.WRITELN, "writeln"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
-        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "Ola' ", TipoConstante.STRING));
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"Ola' \"", TipoConstante.STRING));
         assert(al.proximo() == new InformacaoLexica(Token.VIRGULA, ","));
         assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));

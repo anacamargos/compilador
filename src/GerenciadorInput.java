@@ -24,21 +24,35 @@ public class GerenciadorInput {
         scanner.useDelimiter("");
     }
 
-    char olharProximo() {
+    private void setarProximo() {
         if (proximoCaractere != Character.MIN_VALUE) {
-            return proximoCaractere;
+            return;
         }
 
         if (!scanner.hasNext()) {
-            return Globais.EOF;
+            proximoCaractere = Globais.EOF;
+            return;
         }
 
-        proximoCaractere = scanner.next().toLowerCase().charAt(0);
-        return proximoCaractere;
+        proximoCaractere = scanner.next().charAt(0);
+    }
+
+    char olharProximo() {
+        setarProximo();
+        return Character.toLowerCase(proximoCaractere);
     }
 
     char consumirProximo() {
-        char proximo = olharProximo();
+        setarProximo();
+        char proximo = proximoCaractere;
+        proximoCaractere = Character.MIN_VALUE;
+        return Character.toLowerCase(proximo);
+    }
+
+    // como fala CaseSensitive em português?
+    char consumirProximoCaseSensitive() {
+        setarProximo();
+        char proximo = proximoCaractere;
         proximoCaractere = Character.MIN_VALUE;
         return proximo;
     }

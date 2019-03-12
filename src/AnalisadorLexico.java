@@ -30,7 +30,7 @@ public class AnalisadorLexico {
                         gerenciadorInput.consumirProximo();
                     } else if (proximo == '\'') {
                         estado = 1;
-                         gerenciadorInput.consumirProximo();
+                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '0') {
                         estado = 3;
                         lexema += gerenciadorInput.consumirProximo();
@@ -40,9 +40,9 @@ public class AnalisadorLexico {
                     } else if (proximo == '-') {
                         estado = 7;
                         lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '\"') {
+                    } else if (proximo == '"') {
                         estado = 8;
-                        gerenciadorInput.consumirProximo();
+                        lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '<') {
                         estado = 9;
                         lexema += gerenciadorInput.consumirProximo();
@@ -72,7 +72,7 @@ public class AnalisadorLexico {
                 case 1:
                     if (proximo != '\'') {
                         estado = 2;
-                        lexema += gerenciadorInput.consumirProximo();
+                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
                     } else {
                         throw new ExcecaoLexica("Input inválido");
                     }
@@ -80,7 +80,7 @@ public class AnalisadorLexico {
                 case 2:
                     if (proximo == '\'') {
                         estado = ESTADO_FINAL;
-                        gerenciadorInput.consumirProximo();
+                        lexema += gerenciadorInput.consumirProximo();
                         token = token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
                         tipoConstante = TipoConstante.CHAR;
                     } else {
@@ -139,10 +139,10 @@ public class AnalisadorLexico {
                 case 8:
                     if (proximo != '"' && proximo != '\n' && proximo != '$') {
                         estado = 8;
-                        lexema += gerenciadorInput.consumirProximo();
+                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
                     } else if (proximo == '"') {
                         estado = ESTADO_FINAL;
-                        gerenciadorInput.consumirProximo();
+                        lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.STRING;
                     } else {
