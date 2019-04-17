@@ -4,6 +4,7 @@ import java.util.Arrays;
  * Created by augusto on 28/02/19.
  */
 public class AnalisadorLexico {
+
     GerenciadorInput gerenciadorInput;
     private static final int ESTADO_INICIAL = 0;
     private static final int ESTADO_FINAL = 75;
