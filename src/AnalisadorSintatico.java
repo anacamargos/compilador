@@ -20,7 +20,8 @@ public class AnalisadorSintatico {
         return tokenLido;
     }
 
-    public void casaToken (InformacaoLexica tokenEsperado) throws Exception{
+    public void casaToken (InformacaoLexica tokenEsperado) throws Exception {
+
         if (isEqual(tokenLido, tokenEsperado)) {
 
             GerenciadorInput gi = new GerenciadorInput(tokenLido.lexema);
@@ -37,7 +38,9 @@ public class AnalisadorSintatico {
 
         boolean retorno = false;
 
-        if ( tokenLido.token == tokenDesejado.token && tokenLido.lexema.equals(tokenDesejado.lexema) && tokenLido.tipoConstante == tokenDesejado.tipoConstante) {
+        if ( tokenLido.token == tokenDesejado.token
+                && tokenLido.lexema.equals(tokenDesejado.lexema)
+                && tokenLido.tipoConstante == tokenDesejado.tipoConstante) {
             retorno = true;
         }
         return retorno;
