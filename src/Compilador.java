@@ -13,12 +13,6 @@ public class Compilador {
         InformacaoLexica tokenLido = al.proximo();
         AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(tokenLido);
 
-        System.out.println(tokenLido.token);
-        System.out.println(tokenLido.lexema);
-        System.out.println(tokenLido.tipoConstante);
-
-        System.out.println(analisadorSintatico.getTokenLido().token);
-
 
     }
 }

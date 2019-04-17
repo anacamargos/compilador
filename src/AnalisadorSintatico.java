@@ -38,12 +38,19 @@ public class AnalisadorSintatico {
 
         boolean retorno = false;
 
-        if ( tokenLido.token == tokenDesejado.token
+        if (tokenLido.token == tokenDesejado.token
                 && tokenLido.lexema.equals(tokenDesejado.lexema)
                 && tokenLido.tipoConstante == tokenDesejado.tipoConstante) {
             retorno = true;
         }
         return retorno;
+    }
+
+    public void declaracao() {
+
+        if(isEqual(tokenLido, InformacaoLexica("var"))) {
+            casaToken(tokenLido);
+        }
     }
 }
 
