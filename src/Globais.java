@@ -15,7 +15,7 @@ public class Globais {
             '+', '-', '"', '\'', '/', '*', '%', '^', '@', '!', '?', '>', '<', '=', 13 /* 0dH */, 10 /* 0Ah */ };
     public static final char EOF = '\u001a';
 
-    public static final HashMap<String, Token> tabelaDeSimbolos =  new HashMap<String, Token>(){{
+    public static final HashMap<String, Byte> tabelaDeSimbolos =  new HashMap<String, Byte>(){{
         put("const", Token.CONST);
         put("var", Token.VAR);
         put("integer", Token.INTEGER);
@@ -48,7 +48,7 @@ public class Globais {
         put("step", Token.STEP);
         put("write", Token.WRITE);
         put("writeln", Token.WRITELN);
-        put("%", Token.RESTO);
+        put("%", Token.MODULO);
         put("[", Token.ABRE_COLCHETE);
         put("]", Token.FECHA_COLCHETE);
         put("do", Token.DO);
@@ -62,54 +62,71 @@ public class Globais {
         return false;
     }
 
-    public static Token inserirOuBuscar(String lexema) {
+    public static Byte inserirOuBuscar(String lexema) {
         if (!tabelaDeSimbolos.containsKey(lexema)) {
-            tabelaDeSimbolos.put(lexema, Token.ID);
+            tabelaDeSimbolos.put(lexema, Token.proxByte);
+            Token.proxByte++;
+            Token.setByteAnt((byte) (Token.proxByte - 1)); //chamada para atualizar a variavel
         }
         return tabelaDeSimbolos.get(lexema);
     }
+
 }
 
-enum Token {
-    CONST,
-    VAR,
-    INTEGER,
-    CHAR,
-    FOR,
-    IF,
-    ELSE,
-    AND,
-    OR,
-    NOT,
-    IGUAL,
-    TO,
-    ABRE_PARENTESE,
-    FECHA_PARENTESE,
-    MENOR,
-    MAIOR,
-    DIFERENTE,
-    MAIOR_IGUAL,
-    MENOR_IGUAL,
-    VIRGULA,
-    SOMA,
-    SUBTRACAO,
-    ASTERISCO,
-    BARRA,
-    PONTO_E_VIRGULA,
-    ABRE_CHAVE,
-    FECHA_CHAVE,
-    THEN,
-    READLN,
-    STEP,
-    WRITE,
-    WRITELN,
-    RESTO,
-    ABRE_COLCHETE,
-    FECHA_COLCHETE,
-    DO,
-    ID,
-    CONSTANTE_LITERAL,
-    EOF // EOF pode ser um token?
+class Token {
+    static final Byte CONST = 0;
+    static final Byte VAR = 1;
+    static final Byte INTEGER = 2;
+    static final Byte CHAR = 3;
+    static final Byte FOR = 4;
+    static final Byte IF = 5;
+    static final Byte ELSE = 6;
+    static final Byte AND = 7;
+    static final Byte OR = 8;
+    static final Byte NOT = 9;
+    static final Byte IGUAL = 10;
+    static final Byte TO = 11;
+    static final Byte ABRE_PARENTESE =  12;
+    static final Byte FECHA_PARENTESE = 13;
+    static final Byte MENOR = 14;
+    static final Byte MAIOR = 15;
+    static final Byte DIFERENTE = 16;
+    static final Byte MAIOR_IGUAL = 17;
+    static final Byte MENOR_IGUAL = 18;
+    static final Byte VIRGULA = 19;
+    static final Byte SOMA = 20;
+    static final Byte SUBTRACAO= 21;
+    static final Byte ASTERISCO = 22;
+    static final Byte BARRA = 23;
+    static final Byte PONTO_E_VIRGULA = 24;
+    static final Byte ABRE_CHAVE = 25;
+    static final Byte FECHA_CHAVE = 26;
+    static final Byte THEN = 27;
+    static final Byte READLN = 28;
+    static final Byte STEP = 29;
+    static final Byte WRITE = 30;
+    static final Byte WRITELN = 31;
+    static final Byte MODULO = 32;
+    static final Byte ABRE_COLCHETE = 33;
+    static final Byte FECHA_COLCHETE = 34;
+    static final Byte DO = 35;
+    static final Byte EOF = 36;
+    static final Byte CONSTANTE_LITERAL = 37;
+    static Byte proxByte = 38;
+    static Byte ID;
+    static  Byte byteAnt;
+
+    public static void setByteAnt(Byte byteAnt) {
+        Token.byteAnt = byteAnt;
+    }
+
+    //Caso seja um novo ID que já foi inserido na tabela de simbolos
+    public static Byte getID(String lexema) {
+        if (!Globais.tabelaDeSimbolos.containsKey(lexema)) {
+            return byteAnt;
+        }
+        return Globais.tabelaDeSimbolos.get(lexema);
+    }
 }
 
 enum TipoConstante {

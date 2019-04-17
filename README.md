@@ -10,5 +10,5 @@ real. No caso do programa conter erros, o compilador deve reportar o primeiro er
 ### Autores
 
 * Ana Letícia Camargos :octocat: [@anacamargos](https://github.com/anacamargos)
-* Cora Silber :octocat: [@corasilber](https://github.com/corasilber)
+* Cora Silberschneider :octocat: [@corasilber](https://github.com/corasilber)
 * Augusto Noronha :octocat: [@augusto2112](https://github.com/augusto2112)

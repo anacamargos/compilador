@@ -7,18 +7,18 @@
  * Container de informação que será passado do lexico para o sintático
  */
 public class InformacaoLexica {
-    public final Token token;
+    public final Byte token;
     public final String lexema;
     public final TipoConstante tipoConstante;
 
-    InformacaoLexica(Token token, String lexema) throws Exception {
+    InformacaoLexica(Byte token, String lexema) throws Exception {
         this.token = token;
         this.lexema = lexema;
         this.tipoConstante = null;
         this.validar();
     }
 
-    InformacaoLexica(Token token, String lexema, TipoConstante tipoConstante) throws Exception {
+    InformacaoLexica(Byte token, String lexema, TipoConstante tipoConstante) throws Exception {
         this.token = token;
         this.lexema = lexema;
         this.tipoConstante = tipoConstante;

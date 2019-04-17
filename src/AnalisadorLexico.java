@@ -17,7 +17,7 @@ public class AnalisadorLexico {
     InformacaoLexica proximo() throws Exception {
         int estado = ESTADO_INICIAL;
         String lexema = "";
-        Token token = null;
+        Byte token = null;
         TipoConstante tipoConstante = null;
         while (estado != ESTADO_FINAL) {
             char proximo = gerenciadorInput.olharProximo();
@@ -82,7 +82,7 @@ public class AnalisadorLexico {
                     if (proximo == '\'') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
+                        token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
                         tipoConstante = TipoConstante.CHAR;
                     } else {
                         throw new ExcecaoLexica("Input inválido");
@@ -97,7 +97,7 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
                         estado = ESTADO_FINAL;
-                        token = token.CONSTANTE_LITERAL;
+                        token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.INTEGER;
                     }
                     break;
