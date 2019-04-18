@@ -145,10 +145,28 @@ public class AnalisadorSintatico {
 
     /**
      * Procedimento A
+     * N -> = valor | '[' valor ']'
+     */
+
+    public void N() {
+
+        if(this.simboloLido.getToken() == Token.IGUAL) {
+            casaToken(Token.IGUAL);
+            casaToken(Token.CONSTANTE_LITERAL);
+        } else {
+            casaToken(Token.ABRE_COLCHETE);
+            casaToken(Token.CONSTANTE_LITERAL);
+            casaToken(Token.FECHA_COLCHETE);
+        }
+
+    }
+
+    /**
+     * Procedimento A
      * A -> '['Exp']' = Exp;  |  = Exp;
      */
 
-    public void A () {
+    public void A () throws Exception {
 
         if(this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
             casaToken(Token.ABRE_COLCHETE);
@@ -270,9 +288,9 @@ public class AnalisadorSintatico {
             Exp();
             this.casaToken(Token.FECHA_PARENTESE);
 
-        } else if (this.simboloLido.getToken() == Token.CONST) {
+        } else if (this.simboloLido.getToken() == Token.CONSTANTE_LITERAL) {
 
-            this.casaToken(Token.CONST);
+            this.casaToken(Token.CONSTANTE_LITERAL);
 
         } else {
 
