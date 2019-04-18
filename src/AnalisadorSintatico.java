@@ -70,8 +70,8 @@ public class AnalisadorSintatico {
         while (simboloLido.getToken() == Token.VAR ||
                 simboloLido.getToken() == Token.CONST) {
 
-            System.out.println("To no D");
-            //D();
+            System.out.println("To no D e identifiquei o " + simboloLido.getLexema());
+            D();
         }
 
         //C
@@ -83,12 +83,34 @@ public class AnalisadorSintatico {
                 simboloLido.getToken() == Token.WRITE ||
                 simboloLido.getToken() == Token.WRITELN ) {
 
-            System.out.println("To no C");
-            //C();
+            System.out.println("To no C e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+            C();
         }
 
+    }
 
+    /**
+     * Procedimento D
+     * D -> var { (char | integer) id [N] {, id [N] }  }  ; |
+     * 	    const id = valor ;
+     */
 
+    public void D () {
+
+    }
+
+    /**
+     * Procedimento C
+     * C -> id A |
+     * 	    For id = Exp to Exp [step valor] do B |
+     * 	    if Exp then D |
+     * 	    ; |
+     *      readln'(' id ')'; |
+     *      write'(' {Exp} ')'; |
+     *      writeln'(' {Exp} ')';
+     */
+
+    public void C () {
 
     }
 
