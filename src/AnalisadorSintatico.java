@@ -144,7 +144,7 @@ public class AnalisadorSintatico {
     }
 
     /**
-     * Procedimento A
+     * Procedimento N
      * N -> = valor | '[' valor ']'
      */
 
@@ -179,6 +179,40 @@ public class AnalisadorSintatico {
             casaToken(Token.IGUAL);
             Exp();
             casaToken(Token.PONTO_E_VIRGULA);
+        }
+    }
+
+    /**
+     * Procedimento B
+     * B -> C  |  '{' {C} '}'
+     */
+    public void B () {
+
+        if(simboloLido.getToken() == Token.ID ||
+                simboloLido.getToken() == Token.FOR ||
+                simboloLido.getToken() == Token.IF ||
+                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                simboloLido.getToken() == Token.READLN ||
+                simboloLido.getToken() == Token.WRITE ||
+                simboloLido.getToken() == Token.WRITELN) {
+
+            C();
+
+        } else {
+
+            casaToken(Token.ABRE_CHAVE);
+
+            while (simboloLido.getToken() == Token.ID ||
+                    simboloLido.getToken() == Token.FOR ||
+                    simboloLido.getToken() == Token.IF ||
+                    simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                    simboloLido.getToken() == Token.READLN ||
+                    simboloLido.getToken() == Token.WRITE ||
+                    simboloLido.getToken() == Token.WRITELN) {
+                C();
+            }
+
+            casaToken(Token.FECHA_CHAVE);
         }
     }
 
@@ -310,6 +344,7 @@ public class AnalisadorSintatico {
 }
 
 /*
+
 S -> {D} {C}
 
 D -> var { (char | integer) id [N] {, id [N] }  }  ; |
@@ -333,7 +368,5 @@ Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
 ExpS -> [ + | -  ] T { (+ | - | or) T }
 T -> F { (* | and | / | %) F }
 F -> not F | valor | id[ '[' Exp ']' ] | '(' Exp ')'
-
-
 
 */
