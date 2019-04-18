@@ -35,9 +35,9 @@ public class AnalisadorSintatico {
         return simboloLido;
     }
 
-    public void casaToken (InformacaoLexica tokenEsperado) throws Exception {
+    public void casaToken (byte tokenEsperado) throws Exception {
 
-        if (this.simboloLido.getToken() == tokenEsperado.getToken()) {
+        if (this.simboloLido.getToken() == tokenEsperado) {
 
             this.simboloLido = analisadorLexico.proximo();
 
@@ -64,13 +64,13 @@ public class AnalisadorSintatico {
      * S -> {D}*{C}*
      */
 
-    public void S () {
+    public void S () throws Exception {
 
         // D
         while (simboloLido.getToken() == Token.VAR ||
                 simboloLido.getToken() == Token.CONST) {
 
-            System.out.println("To no D e identifiquei o " + simboloLido.getLexema());
+            //System.out.println("To no D e identifiquei o " + simboloLido.getLexema());
             D();
         }
 
@@ -83,7 +83,7 @@ public class AnalisadorSintatico {
                 simboloLido.getToken() == Token.WRITE ||
                 simboloLido.getToken() == Token.WRITELN ) {
 
-            System.out.println("To no C e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+            //System.out.println("To no C e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
             C();
         }
 
@@ -95,7 +95,36 @@ public class AnalisadorSintatico {
      * 	    const id = valor ;
      */
 
-    public void D () {
+    public void D () throws Exception {
+
+        if (this.simboloLido.getToken() == Token.VAR ) {
+
+            //System.out.println("To no VAR e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+
+            this.casaToken(Token.VAR);
+            //System.out.println("Novo Simbolo: " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+
+            while ( this.simboloLido.getToken() == Token.CHAR ||
+                    this.simboloLido.getToken() == Token.INTEGER ) {
+
+                if (this.simboloLido.getToken() == Token.CHAR) {
+                    //System.out.println("Entrei no CHAR");
+
+                    this.casaToken(Token.CHAR);
+
+                } else if (this.simboloLido.getToken() == Token.INTEGER) {
+                    //System.out.println("Entrei no INTEGER");
+
+                    this.casaToken(Token.INTEGER);
+                    //System.out.println("Novo Simbolo: " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+
+                }
+            }
+
+        } else if (this.simboloLido.getToken() == Token.CONST) {
+
+        }
+
 
     }
 

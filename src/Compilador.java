@@ -20,7 +20,7 @@ public class Compilador {
         GerenciadorInput gerenciadorInput = new GerenciadorInput(file);
         AnalisadorLexico analisadorLexico = new AnalisadorLexico(gerenciadorInput);
         InformacaoLexica simboloLido = analisadorLexico.proximo();
-        //System.out.println(Globais.tabelaDeSimbolos);
+        System.out.println(Globais.tabelaDeSimbolos);
         AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(simboloLido, gerenciadorInput, analisadorLexico);
         analisadorSintatico.S();
 
