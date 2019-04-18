@@ -139,7 +139,70 @@ public class AnalisadorSintatico {
      *      writeln'(' {Exp} ')';
      */
 
-    public void C () {
+    public void C () throws Exception {
+
+        if(this.simboloLido.getToken() == Token.ID) {
+
+            casaToken(Token.ID);
+            A();
+
+        } else if(this.simboloLido.getToken() == Token.FOR) {
+
+            casaToken(Token.FOR);
+            casaToken(Token.ID);
+            casaToken(Token.IGUAL);
+            Exp();
+            casaToken(Token.TO);
+            Exp();
+
+            if(this.simboloLido.getToken() == Token.STEP) {
+                casaToken(Token.STEP);
+                casaToken(Token.CONSTANTE_LITERAL);
+            }
+
+            casaToken(Token.DO);
+            B();
+
+        } else if(this.simboloLido.getToken() == Token.IF) {
+
+            casaToken(Token.IF);
+            Exp();
+            casaToken(Token.THEN);
+            D();
+
+        } else if(this.simboloLido.getToken() == Token.PONTO_E_VIRGULA) {
+
+            casaToken(Token.PONTO_E_VIRGULA);
+
+        } else if(this.simboloLido.getToken() == Token.READLN) {
+
+            casaToken(Token.READLN);
+            casaToken(Token.ABRE_PARENTESE);
+            casaToken(Token.ID);
+            casaToken(Token.FECHA_PARENTESE);
+            casaToken(Token.PONTO_E_VIRGULA);
+
+        } else if (this.simboloLido.getToken() == Token.WRITE) {
+
+            casaToken(Token.WRITE);
+            casaToken(Token.ABRE_PARENTESE);
+
+            // TODO {Exp} nao sei fazer
+
+            casaToken(Token.FECHA_PARENTESE);
+            casaToken(Token.PONTO_E_VIRGULA);
+
+        } else if(this.simboloLido.getToken() == Token.WRITELN) {
+
+            casaToken(Token.WRITELN);
+            casaToken(Token.ABRE_PARENTESE);
+
+            // TODO {Exp} nao sei fazer
+
+            casaToken(Token.FECHA_PARENTESE);
+            casaToken(Token.PONTO_E_VIRGULA);
+
+        }
 
     }
 
