@@ -148,7 +148,7 @@ public class AnalisadorSintatico {
      * N -> = valor | '[' valor ']'
      */
 
-    public void N() {
+    public void N() throws Exception {
 
         if(this.simboloLido.getToken() == Token.IGUAL) {
             casaToken(Token.IGUAL);
@@ -186,7 +186,7 @@ public class AnalisadorSintatico {
      * Procedimento B
      * B -> C  |  '{' {C} '}'
      */
-    public void B () {
+    public void B () throws Exception {
 
         if(simboloLido.getToken() == Token.ID ||
                 simboloLido.getToken() == Token.FOR ||
@@ -213,6 +213,62 @@ public class AnalisadorSintatico {
             }
 
             casaToken(Token.FECHA_CHAVE);
+        }
+    }
+
+    /**
+     * Procedimento E
+     * E -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
+     */
+    public void E () throws Exception {
+
+        if(simboloLido.getToken() == Token.ID ||
+                simboloLido.getToken() == Token.FOR ||
+                simboloLido.getToken() == Token.IF ||
+                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                simboloLido.getToken() == Token.READLN ||
+                simboloLido.getToken() == Token.WRITE ||
+                simboloLido.getToken() == Token.WRITELN) {
+
+            C();
+
+            if(simboloLido.getToken() == Token.ELSE) {
+                casaToken(Token.ELSE);
+                C();
+            }
+
+        } else {
+
+            casaToken(Token.ABRE_CHAVE);
+
+            while (simboloLido.getToken() == Token.ID ||
+                    simboloLido.getToken() == Token.FOR ||
+                    simboloLido.getToken() == Token.IF ||
+                    simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                    simboloLido.getToken() == Token.READLN ||
+                    simboloLido.getToken() == Token.WRITE ||
+                    simboloLido.getToken() == Token.WRITELN) {
+                C();
+            }
+
+            casaToken(Token.FECHA_CHAVE);
+
+            if(simboloLido.getToken() == Token.ELSE) {
+
+                casaToken(Token.ELSE);
+                casaToken(Token.ABRE_CHAVE);
+
+                while (simboloLido.getToken() == Token.ID ||
+                        simboloLido.getToken() == Token.FOR ||
+                        simboloLido.getToken() == Token.IF ||
+                        simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                        simboloLido.getToken() == Token.READLN ||
+                        simboloLido.getToken() == Token.WRITE ||
+                        simboloLido.getToken() == Token.WRITELN) {
+                    C();
+                }
+                casaToken(Token.FECHA_CHAVE);
+            }
         }
     }
 
