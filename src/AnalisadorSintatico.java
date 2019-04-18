@@ -21,6 +21,12 @@ public class AnalisadorSintatico {
         this.simboloLido = simbolo;
     }
 
+    public AnalisadorSintatico (InformacaoLexica simboloLido, GerenciadorInput gerenciadorInput, AnalisadorLexico analisadorLexico) {
+        this.simboloLido = simboloLido;
+        this.gerenciadorInput = gerenciadorInput;
+        this.analisadorLexico = analisadorLexico;
+    }
+
     public void setTokenLido(InformacaoLexica tokenLido) {
         this.simboloLido = tokenLido;
     }
@@ -31,7 +37,7 @@ public class AnalisadorSintatico {
 
     public void casaToken (InformacaoLexica tokenEsperado) throws Exception {
 
-        if (this.simboloLido.token == tokenEsperado.token) {
+        if (this.simboloLido.getToken() == tokenEsperado.getToken()) {
 
             this.simboloLido = analisadorLexico.proximo();
 
@@ -45,37 +51,76 @@ public class AnalisadorSintatico {
 
         boolean retorno = false;
 
-        if (simboloLido.token == tokenDesejado.token
-                && simboloLido.lexema.equals(tokenDesejado.lexema)
+        if (simboloLido.getToken() == tokenDesejado.getToken()
+                && simboloLido.lexema.equals(tokenDesejado.getLexema())
                 && simboloLido.tipoConstante == tokenDesejado.tipoConstante) {
             retorno = true;
         }
         return retorno;
     }
 
-    public void declaracao() {
+    /**
+     * Procedimento S
+     * S -> {D}*{C}*
+     */
 
-//        if(isEqual(simboloLido, InformacaoLexica("var"))) {
-//            casaToken(simboloLido);
-//        }
+    public void S () {
+
+        // D
+        while (simboloLido.getToken() == Token.VAR ||
+                simboloLido.getToken() == Token.CONST) {
+
+            System.out.println("To no D");
+            //D();
+        }
+
+        //C
+        while (simboloLido.getToken() == Token.ID ||
+                simboloLido.getToken() == Token.FOR ||
+                simboloLido.getToken() == Token.IF ||
+                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
+                simboloLido.getToken() == Token.READLN ||
+                simboloLido.getToken() == Token.WRITE ||
+                simboloLido.getToken() == Token.WRITELN ) {
+
+            System.out.println("To no C");
+            //C();
+        }
+
+
+
+
     }
+
+
+
 }
 
 /*
 S -> {D} {C}
 
-D -> var { (char | integer) id [N] {, id [N] } ; } |
+D -> var { (char | integer) id [N] {, id [N] }  }  ; |
 	const id = valor ;
 N -> = valor | '[' valor ']'
 
 C -> id A |
 	For id = Exp to Exp [step valor] do B |
 	if Exp then D |
-readln'(' id ')'; |
-write'(' {Exp} ')';
+	; |
+    readln'(' id ')'; |
+    write'(' {Exp} ')'; |
+    writeln'(' {Exp} ')';
+
 
 A -> '['Exp']' = Exp;  |  = Exp;
 B -> C  |  '{' {C} '}'
 D -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
+
+Exp -> E { ( = | <> | < | > | <= | >= ) E }
+E -> [ + | -  ] T { (+ | - | or) T }
+T -> P { (* | and | / | %) P }
+P -> {not} F
+F -> valor | id | '(' Exp ')'
+
 
 */

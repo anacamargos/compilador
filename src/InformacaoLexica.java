@@ -30,6 +30,18 @@ public class InformacaoLexica {
         this.tipoConstante = tipoConstante;
     }
 
+    public Byte getToken() {
+        return token;
+    }
+
+    public String getLexema() {
+        return lexema;
+    }
+
+    public TipoConstante getTipoConstante() {
+        return tipoConstante;
+    }
+
     private void validar() throws Exception {
         if (token == Token.CONSTANTE_LITERAL && this.tipoConstante == null) {
             throw new Exception("Token é constante mas tipo constante é nulo.\n Informação léxica: " + this.toString());
