@@ -143,7 +143,33 @@ public class AnalisadorSintatico {
 
     }
 
+    /**
+     * Procedimento Exp
+     * Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
+     */
     public void Exp () throws Exception {
+
+        ExpS();
+
+        if(this.simboloLido.getToken() == Token.IGUAL) {
+            casaToken(Token.IGUAL);
+            ExpS();
+        } else if (this.simboloLido.getToken() == Token.DIFERENTE) {
+            casaToken(Token.DIFERENTE);
+            ExpS();
+        } else if (this.simboloLido.getToken() == Token.MAIOR) {
+            casaToken(Token.MAIOR);
+            ExpS();
+        } else if (this.simboloLido.getToken() == Token.MENOR) {
+            casaToken(Token.MENOR);
+            ExpS();
+        } else if (this.simboloLido.getToken() == Token.MENOR_IGUAL) {
+            casaToken(Token.MENOR_IGUAL);
+            ExpS();
+        } else if (this.simboloLido.getToken() == Token.MAIOR_IGUAL) {
+            casaToken(Token.MAIOR_IGUAL);
+            ExpS();
+        }
 
     }
 
