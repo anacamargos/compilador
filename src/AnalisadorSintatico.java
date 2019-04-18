@@ -66,15 +66,12 @@ public class AnalisadorSintatico {
 
     public void S () throws Exception {
 
-        // D
         while (simboloLido.getToken() == Token.VAR ||
                 simboloLido.getToken() == Token.CONST) {
 
-            //System.out.println("To no D e identifiquei o " + simboloLido.getLexema());
             D();
         }
 
-        //C
         while (simboloLido.getToken() == Token.ID ||
                 simboloLido.getToken() == Token.FOR ||
                 simboloLido.getToken() == Token.IF ||
@@ -83,7 +80,6 @@ public class AnalisadorSintatico {
                 simboloLido.getToken() == Token.WRITE ||
                 simboloLido.getToken() == Token.WRITELN ) {
 
-            //System.out.println("To no C e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
             C();
         }
 
@@ -99,29 +95,46 @@ public class AnalisadorSintatico {
 
         if (this.simboloLido.getToken() == Token.VAR ) {
 
-            //System.out.println("To no VAR e identifiquei o " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
-
-            this.casaToken(Token.VAR);
-            //System.out.println("Novo Simbolo: " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+            casaToken(Token.VAR);
 
             while ( this.simboloLido.getToken() == Token.CHAR ||
                     this.simboloLido.getToken() == Token.INTEGER ) {
 
                 if (this.simboloLido.getToken() == Token.CHAR) {
-                    //System.out.println("Entrei no CHAR");
+                    casaToken(Token.CHAR);
+                } else {
+                    casaToken(Token.INTEGER);
+                }
 
-                    this.casaToken(Token.CHAR);
+                casaToken(Token.ID);
 
-                } else if (this.simboloLido.getToken() == Token.INTEGER) {
-                    //System.out.println("Entrei no INTEGER");
+                if(this.simboloLido.getToken() == Token.IGUAL ||
+                    this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+                    N();
+                }
 
-                    this.casaToken(Token.INTEGER);
-                    //System.out.println("Novo Simbolo: " + simboloLido.getLexema() + " com o token: " + simboloLido.getToken());
+                while (this.simboloLido.getToken() == Token.PONTO_E_VIRGULA) {
+                    casaToken(Token.PONTO_E_VIRGULA);
+                    casaToken(Token.ID);
+
+                    if(this.simboloLido.getToken() == Token.IGUAL ||
+                            this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+                        N();
+                    }
 
                 }
+
             }
 
+            casaToken(Token.PONTO_E_VIRGULA);
+
         } else if (this.simboloLido.getToken() == Token.CONST) {
+
+            casaToken(Token.CONST);
+            casaToken(Token.ID);
+            casaToken(Token.IGUAL);
+            casaToken(Token.CONSTANTE_LITERAL);
+            casaToken(Token.PONTO_E_VIRGULA);
 
         }
 
@@ -187,7 +200,9 @@ public class AnalisadorSintatico {
             casaToken(Token.WRITE);
             casaToken(Token.ABRE_PARENTESE);
 
-            // TODO {Exp} nao sei fazer
+            while (this.simboloLido.getToken() != Token.FECHA_PARENTESE ) {
+                Exp();
+            }
 
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
@@ -197,7 +212,9 @@ public class AnalisadorSintatico {
             casaToken(Token.WRITELN);
             casaToken(Token.ABRE_PARENTESE);
 
-            // TODO {Exp} nao sei fazer
+            while (this.simboloLido.getToken() != Token.FECHA_PARENTESE ) {
+                Exp();
+            }
 
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
