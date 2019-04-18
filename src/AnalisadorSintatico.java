@@ -148,7 +148,7 @@ public class AnalisadorSintatico {
      * ExpS -> [ + | -  ] T { (+ | - | or) T }
      */
 
-    public void ExpS () {
+    public void ExpS () throws Exception {
         if (this.simboloLido.getToken() == Token.SOMA) {
             casaToken(Token.SOMA);
         } else if (this.simboloLido.getToken() == Token.SUBTRACAO) {
@@ -172,6 +172,38 @@ public class AnalisadorSintatico {
             //TODO chamar T();
 
         }
+    }
+
+    /**
+     * Procedimento ExpS
+     * F -> not F | valor | id [ '[' Exp ']' ] | '(' Exp ')'
+     */
+    public void F() throws Exception {
+
+        if(this.simboloLido.getToken() == Token.NOT) {
+
+            this.casaToken(Token.NOT);
+            // TODO chamar F();
+
+        } else if (this.simboloLido.getToken() == Token.ABRE_PARENTESE) {
+
+            this.casaToken(Token.ABRE_PARENTESE);
+            // TODO chamar Exp();
+            this.casaToken(Token.FECHA_PARENTESE);
+
+        } else if (this.simboloLido.getToken() == Token.CONST) {
+
+            this.casaToken(Token.CONST);
+
+        } else {
+            this.casaToken(Token.ID);
+            if(this.simboloLido.getToken() == Token.ABRE_CHAVE) {
+                this.casaToken(Token.ABRE_CHAVE);
+                //TODO chamar Exp
+                this.casaToken(Token.FECHA_CHAVE);
+            }
+        }
+
     }
 
 
