@@ -185,7 +185,7 @@ public class AnalisadorSintatico {
             casaToken(Token.SUBTRACAO);
         }
 
-        //TODO chamar T();
+        T();
 
         while (this.simboloLido.getToken() == Token.SOMA ||
                 this.simboloLido.getToken() == Token.SUBTRACAO ||
@@ -199,7 +199,7 @@ public class AnalisadorSintatico {
                 casaToken(Token.OR);
             }
 
-            //TODO chamar T();
+            T();
 
         }
     }
@@ -241,12 +241,12 @@ public class AnalisadorSintatico {
         if(this.simboloLido.getToken() == Token.NOT) {
 
             this.casaToken(Token.NOT);
-            // TODO chamar F();
+            F();
 
         } else if (this.simboloLido.getToken() == Token.ABRE_PARENTESE) {
 
             this.casaToken(Token.ABRE_PARENTESE);
-            // TODO chamar Exp();
+            Exp();
             this.casaToken(Token.FECHA_PARENTESE);
 
         } else if (this.simboloLido.getToken() == Token.CONST) {
@@ -254,10 +254,12 @@ public class AnalisadorSintatico {
             this.casaToken(Token.CONST);
 
         } else {
+
             this.casaToken(Token.ID);
+
             if(this.simboloLido.getToken() == Token.ABRE_CHAVE) {
                 this.casaToken(Token.ABRE_CHAVE);
-                //TODO chamar Exp
+                Exp();
                 this.casaToken(Token.FECHA_CHAVE);
             }
         }
