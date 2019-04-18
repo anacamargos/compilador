@@ -144,6 +144,27 @@ public class AnalisadorSintatico {
     }
 
     /**
+     * Procedimento A
+     * A -> '['Exp']' = Exp;  |  = Exp;
+     */
+
+    public void A () {
+
+        if(this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+            casaToken(Token.ABRE_COLCHETE);
+            Exp();
+            casaToken(Token.FECHA_COLCHETE);
+            casaToken(Token.IGUAL);
+            Exp();
+            casaToken(Token.PONTO_E_VIRGULA);
+        } else {
+            casaToken(Token.IGUAL);
+            Exp();
+            casaToken(Token.PONTO_E_VIRGULA);
+        }
+    }
+
+    /**
      * Procedimento Exp
      * Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
      */
@@ -279,7 +300,7 @@ N -> = valor | '[' valor ']'
 
 C -> id A |
 	For id = Exp to Exp [step valor] do B |
-	if Exp then D |
+	if Exp then E |
 	; |
     readln'(' id ')'; |
     write'(' {Exp} ')'; |
@@ -288,7 +309,7 @@ C -> id A |
 
 A -> '['Exp']' = Exp;  |  = Exp;
 B -> C  |  '{' {C} '}'
-D -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
+E -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
 
 Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
 ExpS -> [ + | -  ] T { (+ | - | or) T }
