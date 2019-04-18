@@ -143,6 +143,10 @@ public class AnalisadorSintatico {
 
     }
 
+    public void Exp () throws Exception {
+
+    }
+
     /**
      * Procedimento ExpS
      * ExpS -> [ + | -  ] T { (+ | - | or) T }
@@ -175,7 +179,35 @@ public class AnalisadorSintatico {
     }
 
     /**
-     * Procedimento ExpS
+     * Procedimento T
+     * T -> F { (* | and | / | %) F }
+     */
+    public void T() throws Exception {
+
+        F();
+
+        while (this.simboloLido.getToken() == Token.ASTERISCO ||
+                this.simboloLido.getToken() == Token.AND ||
+                this.simboloLido.getToken() == Token.BARRA ||
+                this.simboloLido.getToken() == Token.MODULO ) {
+
+            if (this.simboloLido.getToken() == Token.ASTERISCO) {
+                casaToken(Token.ASTERISCO);
+            } else if (this.simboloLido.getToken() == Token.AND) {
+                casaToken(Token.AND);
+            } else if (this.simboloLido.getToken() == Token.BARRA) {
+                casaToken(Token.BARRA);
+            } else {
+                casaToken(Token.MODULO);
+            }
+
+            F();
+
+        }
+    }
+
+    /**
+     * Procedimento F
      * F -> not F | valor | id [ '[' Exp ']' ] | '(' Exp ')'
      */
     public void F() throws Exception {
