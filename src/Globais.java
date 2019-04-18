@@ -64,9 +64,7 @@ public class Globais {
 
     public static Byte inserirOuBuscar(String lexema) {
         if (!tabelaDeSimbolos.containsKey(lexema)) {
-            tabelaDeSimbolos.put(lexema, Token.proxByte);
-            Token.proxByte++;
-            Token.setByteAnt((byte) (Token.proxByte - 1)); //chamada para atualizar a variavel
+            tabelaDeSimbolos.put(lexema, Token.ID);
         }
         return tabelaDeSimbolos.get(lexema);
     }
@@ -112,21 +110,8 @@ class Token {
     static final Byte DO = 35;
     static final Byte EOF = 36;
     static final Byte CONSTANTE_LITERAL = 37;
-    static Byte proxByte = 38;
-    static Byte ID;
-    static  Byte byteAnt;
+    static final Byte ID = 38;
 
-    public static void setByteAnt(Byte byteAnt) {
-        Token.byteAnt = byteAnt;
-    }
-
-    //Caso seja um novo ID que já foi inserido na tabela de simbolos
-    public static Byte getID(String lexema) {
-        if (!Globais.tabelaDeSimbolos.containsKey(lexema)) {
-            return byteAnt;
-        }
-        return Globais.tabelaDeSimbolos.get(lexema);
-    }
 }
 
 enum TipoConstante {

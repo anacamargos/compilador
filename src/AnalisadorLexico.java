@@ -22,7 +22,7 @@ public class AnalisadorLexico {
         while (estado != ESTADO_FINAL) {
             char proximo = gerenciadorInput.olharProximo();
             if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
-                throw new ExcecaoLexica("Caractere inválido " + proximo);
+                throw new ExcecaoLexica(gerenciadorInput.linha +": caractere invalido." + proximo);
             }
             switch (estado) {
                 case 0:
@@ -67,7 +67,7 @@ public class AnalisadorLexico {
                         estado = 14;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +": lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 1:
@@ -75,7 +75,7 @@ public class AnalisadorLexico {
                         estado = 2;
                         lexema += gerenciadorInput.consumirProximoCaseSensitive();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 2:
@@ -85,7 +85,7 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
                         tipoConstante = TipoConstante.CHAR;
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 3:
@@ -106,7 +106,7 @@ public class AnalisadorLexico {
                         estado = 5;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 5:
@@ -116,7 +116,7 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.INTEGER;
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 6:
@@ -134,7 +134,7 @@ public class AnalisadorLexico {
                         estado = 6;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 8:
@@ -147,7 +147,7 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.STRING;
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 case 9:
@@ -227,7 +227,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_INICIAL;
                         gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica("Input inválido");
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
                     break;
                 default:

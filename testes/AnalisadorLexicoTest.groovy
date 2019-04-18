@@ -208,16 +208,16 @@ class AnalisadorLexicoTest extends GroovyTestCase {
 
         assert(al.proximo() == new InformacaoLexica(Token.VAR, "var"));
         assert(al.proximo() == new InformacaoLexica(Token.INTEGER, "integer"));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("n"), "n"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "n"));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.CHAR, "char"));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("nome"), "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_COLCHETE, "["));
         assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "40", TipoConstante.INTEGER));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_COLCHETE, "]"));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.CONST, "const"));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("maxiter"), "maxiter")); // ver com o Alexei se existe diferença em MAXITER e maxiter
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "maxiter")); // ver com o Alexei se existe diferença em MAXITER e maxiter
         assert(al.proximo() == new InformacaoLexica(Token.IGUAL, "="));
         assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "10", TipoConstante.INTEGER));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
@@ -228,33 +228,27 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.READLN, "readln"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("nome"), "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.FOR, "for"));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("n"), "n"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "n"));
         assert(al.proximo() == new InformacaoLexica(Token.IGUAL, "="));
         assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "1", TipoConstante.INTEGER));
         assert(al.proximo() == new InformacaoLexica(Token.TO, "to"));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("maxiter"), "maxiter"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "maxiter"));
         assert(al.proximo() == new InformacaoLexica(Token.DO, "do"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_CHAVE, "{"));
         assert(al.proximo() == new InformacaoLexica(Token.WRITELN, "writeln"));
         assert(al.proximo() == new InformacaoLexica(Token.ABRE_PARENTESE, "("));
         assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "\"Ola' \"", TipoConstante.STRING));
         assert(al.proximo() == new InformacaoLexica(Token.VIRGULA, ","));
-        assert(al.proximo() == new InformacaoLexica(Token.getID("nome"), "nome"));
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "nome"));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_PARENTESE, ")"));
         assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
         assert(al.proximo() == new InformacaoLexica(Token.FECHA_CHAVE, "}"));
     }
 
-    void testExemplo1_version1() {
-        File f = new File("testes/exemplo1.l");
-        GerenciadorInput gi = new GerenciadorInput(f);
-        AnalisadorLexico al = new AnalisadorLexico(gi);
-        al.proximo()
-    }
 
 
 }

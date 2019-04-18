@@ -13,6 +13,7 @@ import java.util.Scanner;
 public class GerenciadorInput {
     private char proximoCaractere;
     private Scanner scanner;
+    public int linha =1;
 
     GerenciadorInput(File arquivo) throws FileNotFoundException {
         scanner = new Scanner(arquivo);
@@ -35,6 +36,10 @@ public class GerenciadorInput {
         }
 
         proximoCaractere = scanner.next().charAt(0);
+
+        if(proximoCaractere == '\r'){
+            linha++;
+        }
     }
 
     char olharProximo() {
