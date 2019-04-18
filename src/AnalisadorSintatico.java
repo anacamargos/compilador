@@ -143,6 +143,37 @@ public class AnalisadorSintatico {
 
     }
 
+    /**
+     * Procedimento ExpS
+     * ExpS -> [ + | -  ] T { (+ | - | or) T }
+     */
+
+    public void ExpS () {
+        if (this.simboloLido.getToken() == Token.SOMA) {
+            casaToken(Token.SOMA);
+        } else if (this.simboloLido.getToken() == Token.SUBTRACAO) {
+            casaToken(Token.SUBTRACAO);
+        }
+
+        //TODO chamar T();
+
+        while (this.simboloLido.getToken() == Token.SOMA ||
+                this.simboloLido.getToken() == Token.SUBTRACAO ||
+                this.simboloLido.getToken() == Token.OR) {
+
+            if (this.simboloLido.getToken() == Token.SOMA) {
+                casaToken(Token.SOMA);
+            } else if (this.simboloLido.getToken() == Token.SUBTRACAO) {
+                casaToken(Token.SUBTRACAO);
+            } else {
+                casaToken(Token.OR);
+            }
+
+            //TODO chamar T();
+
+        }
+    }
+
 
 
 }
@@ -167,11 +198,11 @@ A -> '['Exp']' = Exp;  |  = Exp;
 B -> C  |  '{' {C} '}'
 D -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
 
-Exp -> E { ( = | <> | < | > | <= | >= ) E }
-E -> [ + | -  ] T { (+ | - | or) T }
-T -> P { (* | and | / | %) P }
-P -> {not} F
-F -> valor | id | '(' Exp ')'
+Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
+ExpS -> [ + | -  ] T { (+ | - | or) T }
+T -> F { (* | and | / | %) F }
+F -> not F | valor | id[ '[' Exp ']' ] | '(' Exp ')'
+
 
 
 */
