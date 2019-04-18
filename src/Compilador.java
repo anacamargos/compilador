@@ -2,8 +2,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Created by augusto on 02/03/19.
+ * Compilador para a linguagem L
+ * PUC Minas - Compiladores
+ * Professor Alexei Machado
+ *
+ * @author Ana Letícia Camargos
+ * @author Augusto Noronha
+ * @author Cora Silberschneider
+ * @version 1.0
  */
+
 public class Compilador {
 
     public static void main(String[] args) throws Exception {

@@ -1,5 +1,12 @@
 /**
- * Created by augusto on 28/02/19.
+ * Compilador para a linguagem L
+ * PUC Minas - Compiladores
+ * Professor Alexei Machado
+ *
+ * @author Ana Letícia Camargos
+ * @author Augusto Noronha
+ * @author Cora Silberschneider
+ * @version 1.0
  */
 
 import java.io.File;
@@ -11,6 +18,7 @@ import java.util.Scanner;
  * para as classes clientes
  */
 public class GerenciadorInput {
+
     private char proximoCaractere;
     private Scanner scanner;
     public int linha =1;

@@ -4,7 +4,14 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 /**
- * Created by augusto on 28/02/19.
+ * Compilador para a linguagem L
+ * PUC Minas - Compiladores
+ * Professor Alexei Machado
+ *
+ * @author Ana Letícia Camargos
+ * @author Augusto Noronha
+ * @author Cora Silberschneider
+ * @version 1.0
  */
 
 

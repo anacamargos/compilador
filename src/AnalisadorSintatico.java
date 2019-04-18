@@ -1,32 +1,39 @@
 /**
- * Created by ana on 17/04/19.
+ * Compilador para a linguagem L
+ * PUC Minas - Compiladores
+ * Professor Alexei Machado
+ *
+ * @author Ana Letícia Camargos
+ * @author Augusto Noronha
+ * @author Cora Silberschneider
+ * @version 1.0
  */
 
 public class AnalisadorSintatico {
 
-    private InformacaoLexica tokenLido;
+    private InformacaoLexica simboloLido;
+    private AnalisadorLexico analisadorLexico;
+    private GerenciadorInput gerenciadorInput;
 
     public AnalisadorSintatico () {}
 
-    public AnalisadorSintatico (InformacaoLexica token) {
-        this.tokenLido = token;
+    public AnalisadorSintatico (InformacaoLexica simbolo) {
+        this.simboloLido = simbolo;
     }
 
     public void setTokenLido(InformacaoLexica tokenLido) {
-        this.tokenLido = tokenLido;
+        this.simboloLido = tokenLido;
     }
 
-    public InformacaoLexica getTokenLido() {
-        return tokenLido;
+    public InformacaoLexica getSimboloLido() {
+        return simboloLido;
     }
 
     public void casaToken (InformacaoLexica tokenEsperado) throws Exception {
 
-        if (isEqual(tokenLido, tokenEsperado)) {
+        if (this.simboloLido.token == tokenEsperado.token) {
 
-            GerenciadorInput gi = new GerenciadorInput(tokenLido.lexema);
-            AnalisadorLexico al = new AnalisadorLexico(gi);
-            InformacaoLexica tokenLido = al.proximo();
+            this.simboloLido = analisadorLexico.proximo();
 
         } else {
             //TODO gerar erro
@@ -34,13 +41,13 @@ public class AnalisadorSintatico {
         }
     }
 
-    public boolean isEqual (InformacaoLexica tokenLido, InformacaoLexica tokenDesejado) {
+    public boolean isEqual (InformacaoLexica simboloLido, InformacaoLexica tokenDesejado) {
 
         boolean retorno = false;
 
-        if (tokenLido.token == tokenDesejado.token
-                && tokenLido.lexema.equals(tokenDesejado.lexema)
-                && tokenLido.tipoConstante == tokenDesejado.tipoConstante) {
+        if (simboloLido.token == tokenDesejado.token
+                && simboloLido.lexema.equals(tokenDesejado.lexema)
+                && simboloLido.tipoConstante == tokenDesejado.tipoConstante) {
             retorno = true;
         }
         return retorno;
@@ -48,9 +55,9 @@ public class AnalisadorSintatico {
 
     public void declaracao() {
 
-        if(isEqual(tokenLido, InformacaoLexica("var"))) {
-            casaToken(tokenLido);
-        }
+//        if(isEqual(simboloLido, InformacaoLexica("var"))) {
+//            casaToken(simboloLido);
+//        }
     }
 }
 

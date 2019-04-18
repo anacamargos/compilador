@@ -1,8 +1,16 @@
 import java.util.Arrays;
 
 /**
- * Created by augusto on 28/02/19.
+ * Compilador para a linguagem L
+ * PUC Minas - Compiladores
+ * Professor Alexei Machado
+ *
+ * @author Ana Letícia Camargos
+ * @author Augusto Noronha
+ * @author Cora Silberschneider
+ * @version 1.0
  */
+
 public class AnalisadorLexico {
 
     GerenciadorInput gerenciadorInput;
@@ -15,15 +23,19 @@ public class AnalisadorLexico {
     }
 
     InformacaoLexica proximo() throws Exception {
+
         int estado = ESTADO_INICIAL;
         String lexema = "";
         Byte token = null;
         TipoConstante tipoConstante = null;
+
         while (estado != ESTADO_FINAL) {
+
             char proximo = gerenciadorInput.olharProximo();
             if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
                 throw new ExcecaoLexica(gerenciadorInput.linha +": caractere invalido." + proximo);
             }
+
             switch (estado) {
                 case 0:
                     if (Character.isWhitespace(proximo)) {
