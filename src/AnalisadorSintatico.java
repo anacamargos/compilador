@@ -11,96 +11,68 @@
 
 public class AnalisadorSintatico {
 
-    private InformacaoLexica simboloLido;
     private AnalisadorLexico analisadorLexico;
-    private GerenciadorInput gerenciadorInput;
 
-    public AnalisadorSintatico () {}
 
-    public AnalisadorSintatico (InformacaoLexica simbolo) {
-        this.simboloLido = simbolo;
-    }
-
-    public AnalisadorSintatico (InformacaoLexica simboloLido, GerenciadorInput gerenciadorInput, AnalisadorLexico analisadorLexico) {
-        this.simboloLido = simboloLido;
-        this.gerenciadorInput = gerenciadorInput;
+    public AnalisadorSintatico (AnalisadorLexico analisadorLexico) throws Exception {
         this.analisadorLexico = analisadorLexico;
     }
+    
+    private void casaToken (byte tokenEsperado) throws Exception {
 
-    public void setTokenLido(InformacaoLexica tokenLido) {
-        this.simboloLido = tokenLido;
-    }
+        if (Globais.informacaoAtual.getToken() == tokenEsperado) {
 
-    public InformacaoLexica getSimboloLido() {
-        return simboloLido;
-    }
-
-    public void casaToken (byte tokenEsperado) throws Exception {
-
-        if (this.simboloLido.getToken() == tokenEsperado) {
-
-            this.simboloLido = analisadorLexico.proximo();
+            analisadorLexico.setProximo();
 
         } else {
             //TODO gerar erro
-            System.out.println("Erro");
+            throw new ExcecaoSintatica("Não foi possível casar token: " + tokenEsperado);
         }
-    }
-
-    public boolean isEqual (InformacaoLexica simboloLido, InformacaoLexica tokenDesejado) {
-
-        boolean retorno = false;
-
-        if (simboloLido.getToken() == tokenDesejado.getToken()
-                && simboloLido.lexema.equals(tokenDesejado.getLexema())
-                && simboloLido.tipoConstante == tokenDesejado.tipoConstante) {
-            retorno = true;
-        }
-        return retorno;
     }
 
     /**
      * Procedimento S
-     * S -> {D}*{C}*
+     * S -> {D}* {C}* eof
      */
 
     public void S () throws Exception {
-
-        while (simboloLido.getToken() == Token.VAR ||
-                simboloLido.getToken() == Token.CONST) {
+        while (Globais.informacaoAtual.getToken().equals(Token.VAR) ||
+                Globais.informacaoAtual.getToken().equals(Token.CONST)) {
 
             D();
         }
 
-        while (simboloLido.getToken() == Token.ID ||
-                simboloLido.getToken() == Token.FOR ||
-                simboloLido.getToken() == Token.IF ||
-                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                simboloLido.getToken() == Token.READLN ||
-                simboloLido.getToken() == Token.WRITE ||
-                simboloLido.getToken() == Token.WRITELN ) {
+        while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
 
             C();
         }
+
+        casaToken(Token.EOF);
 
     }
 
     /**
      * Procedimento D
-     * D -> var { (char | integer) id [N] {, id [N] }  }  ; |
+     * D -> var { (char | integer) id [N] {, id [N] } ; }  |
      * 	    const id = valor ;
      */
 
     public void D () throws Exception {
 
-        if (this.simboloLido.getToken() == Token.VAR ) {
+        if (Globais.informacaoAtual.getToken().equals(Token.VAR)) {
 
             casaToken(Token.VAR);
 
-            while ( this.simboloLido.getToken() == Token.CHAR ||
-                    this.simboloLido.getToken() == Token.INTEGER ) {
+            while (Globais.informacaoAtual.getToken().equals(Token.CHAR) ||
+                    Globais.informacaoAtual.getToken().equals(Token.INTEGER)) {
 
-                if (this.simboloLido.getToken() == Token.CHAR) {
+                if (Globais.informacaoAtual.getToken().equals(Token.CHAR)) {
                     casaToken(Token.CHAR);
                 } else {
                     casaToken(Token.INTEGER);
@@ -108,27 +80,29 @@ public class AnalisadorSintatico {
 
                 casaToken(Token.ID);
 
-                if(this.simboloLido.getToken() == Token.IGUAL ||
-                    this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+                if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                        Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                     N();
                 }
 
-                while (this.simboloLido.getToken() == Token.PONTO_E_VIRGULA) {
-                    casaToken(Token.PONTO_E_VIRGULA);
+                while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
+                    casaToken(Token.VIRGULA);
                     casaToken(Token.ID);
 
-                    if(this.simboloLido.getToken() == Token.IGUAL ||
-                            this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+                    if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                            Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                         N();
                     }
 
                 }
 
+                casaToken(Token.PONTO_E_VIRGULA);
+
+
             }
 
-            casaToken(Token.PONTO_E_VIRGULA);
 
-        } else if (this.simboloLido.getToken() == Token.CONST) {
+        } else {
 
             casaToken(Token.CONST);
             casaToken(Token.ID);
@@ -148,18 +122,18 @@ public class AnalisadorSintatico {
      * 	    if Exp then D |
      * 	    ; |
      *      readln'(' id ')'; |
-     *      write'(' {Exp} ')'; |
-     *      writeln'(' {Exp} ')';
+     *      write'(' Exp {, Exp} ')'; |
+     *      writeln'(' Exp {, Exp} ')';
      */
 
     public void C () throws Exception {
 
-        if(this.simboloLido.getToken() == Token.ID) {
+        if(Globais.informacaoAtual.getToken().equals(Token.ID)) {
 
             casaToken(Token.ID);
             A();
 
-        } else if(this.simboloLido.getToken() == Token.FOR) {
+        } else if(Globais.informacaoAtual.getToken().equals(Token.FOR)) {
 
             casaToken(Token.FOR);
             casaToken(Token.ID);
@@ -168,7 +142,7 @@ public class AnalisadorSintatico {
             casaToken(Token.TO);
             Exp();
 
-            if(this.simboloLido.getToken() == Token.STEP) {
+            if(Globais.informacaoAtual.getToken().equals(Token.STEP)) {
                 casaToken(Token.STEP);
                 casaToken(Token.CONSTANTE_LITERAL);
             }
@@ -176,18 +150,18 @@ public class AnalisadorSintatico {
             casaToken(Token.DO);
             B();
 
-        } else if(this.simboloLido.getToken() == Token.IF) {
+        } else if(Globais.informacaoAtual.getToken().equals(Token.IF)) {
 
             casaToken(Token.IF);
             Exp();
             casaToken(Token.THEN);
-            D();
+            E();
 
-        } else if(this.simboloLido.getToken() == Token.PONTO_E_VIRGULA) {
+        } else if(Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA)) {
 
             casaToken(Token.PONTO_E_VIRGULA);
 
-        } else if(this.simboloLido.getToken() == Token.READLN) {
+        } else if(Globais.informacaoAtual.getToken().equals(Token.READLN)) {
 
             casaToken(Token.READLN);
             casaToken(Token.ABRE_PARENTESE);
@@ -195,24 +169,30 @@ public class AnalisadorSintatico {
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
 
-        } else if (this.simboloLido.getToken() == Token.WRITE) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.WRITE)) {
 
             casaToken(Token.WRITE);
             casaToken(Token.ABRE_PARENTESE);
 
-            while (this.simboloLido.getToken() != Token.FECHA_PARENTESE ) {
+            Exp();
+
+            while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
+                casaToken(Token.VIRGULA);
                 Exp();
             }
 
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
 
-        } else if(this.simboloLido.getToken() == Token.WRITELN) {
+        } else {
 
             casaToken(Token.WRITELN);
             casaToken(Token.ABRE_PARENTESE);
 
-            while (this.simboloLido.getToken() != Token.FECHA_PARENTESE ) {
+            Exp();
+
+            while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
+                casaToken(Token.VIRGULA);
                 Exp();
             }
 
@@ -230,7 +210,7 @@ public class AnalisadorSintatico {
 
     public void N() throws Exception {
 
-        if(this.simboloLido.getToken() == Token.IGUAL) {
+        if(Globais.informacaoAtual.getToken().equals(Token.IGUAL)) {
             casaToken(Token.IGUAL);
             casaToken(Token.CONSTANTE_LITERAL);
         } else {
@@ -248,7 +228,7 @@ public class AnalisadorSintatico {
 
     public void A () throws Exception {
 
-        if(this.simboloLido.getToken() == Token.ABRE_COLCHETE) {
+        if(Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
             casaToken(Token.ABRE_COLCHETE);
             Exp();
             casaToken(Token.FECHA_COLCHETE);
@@ -268,13 +248,13 @@ public class AnalisadorSintatico {
      */
     public void B () throws Exception {
 
-        if(simboloLido.getToken() == Token.ID ||
-                simboloLido.getToken() == Token.FOR ||
-                simboloLido.getToken() == Token.IF ||
-                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                simboloLido.getToken() == Token.READLN ||
-                simboloLido.getToken() == Token.WRITE ||
-                simboloLido.getToken() == Token.WRITELN) {
+        if(Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
 
             C();
 
@@ -282,13 +262,13 @@ public class AnalisadorSintatico {
 
             casaToken(Token.ABRE_CHAVE);
 
-            while (simboloLido.getToken() == Token.ID ||
-                    simboloLido.getToken() == Token.FOR ||
-                    simboloLido.getToken() == Token.IF ||
-                    simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                    simboloLido.getToken() == Token.READLN ||
-                    simboloLido.getToken() == Token.WRITE ||
-                    simboloLido.getToken() == Token.WRITELN) {
+            while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                    Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                    Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                    Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                    Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                    Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                    Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
                 C();
             }
 
@@ -302,17 +282,17 @@ public class AnalisadorSintatico {
      */
     public void E () throws Exception {
 
-        if(simboloLido.getToken() == Token.ID ||
-                simboloLido.getToken() == Token.FOR ||
-                simboloLido.getToken() == Token.IF ||
-                simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                simboloLido.getToken() == Token.READLN ||
-                simboloLido.getToken() == Token.WRITE ||
-                simboloLido.getToken() == Token.WRITELN) {
+        if(Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
 
             C();
 
-            if(simboloLido.getToken() == Token.ELSE) {
+            if(Globais.informacaoAtual.getToken().equals(Token.ELSE)) {
                 casaToken(Token.ELSE);
                 C();
             }
@@ -321,33 +301,39 @@ public class AnalisadorSintatico {
 
             casaToken(Token.ABRE_CHAVE);
 
-            while (simboloLido.getToken() == Token.ID ||
-                    simboloLido.getToken() == Token.FOR ||
-                    simboloLido.getToken() == Token.IF ||
-                    simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                    simboloLido.getToken() == Token.READLN ||
-                    simboloLido.getToken() == Token.WRITE ||
-                    simboloLido.getToken() == Token.WRITELN) {
+            while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.FOR)) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.IF)) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA)) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.READLN)) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.WRITE)) ||
+                    (Globais.informacaoAtual.getToken().equals(Token.WRITELN))) {
                 C();
             }
 
             casaToken(Token.FECHA_CHAVE);
 
-            if(simboloLido.getToken() == Token.ELSE) {
+            if(Globais.informacaoAtual.getToken().equals(Token.ELSE)) {
 
                 casaToken(Token.ELSE);
-                casaToken(Token.ABRE_CHAVE);
 
-                while (simboloLido.getToken() == Token.ID ||
-                        simboloLido.getToken() == Token.FOR ||
-                        simboloLido.getToken() == Token.IF ||
-                        simboloLido.getToken() == Token.PONTO_E_VIRGULA ||
-                        simboloLido.getToken() == Token.READLN ||
-                        simboloLido.getToken() == Token.WRITE ||
-                        simboloLido.getToken() == Token.WRITELN) {
+                if (Globais.informacaoAtual.getToken().equals(Token.ABRE_CHAVE)) {
+                    casaToken(Token.ABRE_CHAVE);
+
+                    while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                            Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                            Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                            Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                            Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                            Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                            Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
+                        C();
+                    }
+                    casaToken(Token.FECHA_CHAVE);
+
+                } else {
                     C();
                 }
-                casaToken(Token.FECHA_CHAVE);
             }
         }
     }
@@ -360,22 +346,22 @@ public class AnalisadorSintatico {
 
         ExpS();
 
-        if(this.simboloLido.getToken() == Token.IGUAL) {
+        if(Globais.informacaoAtual.getToken().equals(Token.IGUAL)) {
             casaToken(Token.IGUAL);
             ExpS();
-        } else if (this.simboloLido.getToken() == Token.DIFERENTE) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.DIFERENTE)) {
             casaToken(Token.DIFERENTE);
             ExpS();
-        } else if (this.simboloLido.getToken() == Token.MAIOR) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.MAIOR)) {
             casaToken(Token.MAIOR);
             ExpS();
-        } else if (this.simboloLido.getToken() == Token.MENOR) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.MENOR)) {
             casaToken(Token.MENOR);
             ExpS();
-        } else if (this.simboloLido.getToken() == Token.MENOR_IGUAL) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.MENOR_IGUAL)) {
             casaToken(Token.MENOR_IGUAL);
             ExpS();
-        } else if (this.simboloLido.getToken() == Token.MAIOR_IGUAL) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.MAIOR_IGUAL)) {
             casaToken(Token.MAIOR_IGUAL);
             ExpS();
         }
@@ -388,21 +374,21 @@ public class AnalisadorSintatico {
      */
 
     public void ExpS () throws Exception {
-        if (this.simboloLido.getToken() == Token.SOMA) {
+        if (Globais.informacaoAtual.getToken().equals(Token.SOMA)) {
             casaToken(Token.SOMA);
-        } else if (this.simboloLido.getToken() == Token.SUBTRACAO) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.SUBTRACAO)) {
             casaToken(Token.SUBTRACAO);
         }
 
         T();
 
-        while (this.simboloLido.getToken() == Token.SOMA ||
-                this.simboloLido.getToken() == Token.SUBTRACAO ||
-                this.simboloLido.getToken() == Token.OR) {
+        while (Globais.informacaoAtual.getToken().equals(Token.SOMA) ||
+                Globais.informacaoAtual.getToken().equals(Token.SUBTRACAO) ||
+                Globais.informacaoAtual.getToken().equals(Token.OR)) {
 
-            if (this.simboloLido.getToken() == Token.SOMA) {
+            if (Globais.informacaoAtual.getToken().equals(Token.SOMA)) {
                 casaToken(Token.SOMA);
-            } else if (this.simboloLido.getToken() == Token.SUBTRACAO) {
+            } else if (Globais.informacaoAtual.getToken().equals(Token.SUBTRACAO)) {
                 casaToken(Token.SUBTRACAO);
             } else {
                 casaToken(Token.OR);
@@ -421,16 +407,16 @@ public class AnalisadorSintatico {
 
         F();
 
-        while (this.simboloLido.getToken() == Token.ASTERISCO ||
-                this.simboloLido.getToken() == Token.AND ||
-                this.simboloLido.getToken() == Token.BARRA ||
-                this.simboloLido.getToken() == Token.MODULO ) {
+        while (Globais.informacaoAtual.getToken().equals(Token.ASTERISCO) ||
+                Globais.informacaoAtual.getToken().equals(Token.AND) ||
+                Globais.informacaoAtual.getToken().equals(Token.BARRA) ||
+                Globais.informacaoAtual.getToken().equals(Token.MODULO)) {
 
-            if (this.simboloLido.getToken() == Token.ASTERISCO) {
+            if (Globais.informacaoAtual.getToken().equals(Token.ASTERISCO)) {
                 casaToken(Token.ASTERISCO);
-            } else if (this.simboloLido.getToken() == Token.AND) {
+            } else if (Globais.informacaoAtual.getToken().equals(Token.AND)) {
                 casaToken(Token.AND);
-            } else if (this.simboloLido.getToken() == Token.BARRA) {
+            } else if (Globais.informacaoAtual.getToken().equals(Token.BARRA)) {
                 casaToken(Token.BARRA);
             } else {
                 casaToken(Token.MODULO);
@@ -447,18 +433,18 @@ public class AnalisadorSintatico {
      */
     public void F() throws Exception {
 
-        if(this.simboloLido.getToken() == Token.NOT) {
+        if(Globais.informacaoAtual.getToken().equals(Token.NOT)) {
 
             this.casaToken(Token.NOT);
             F();
 
-        } else if (this.simboloLido.getToken() == Token.ABRE_PARENTESE) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.ABRE_PARENTESE)) {
 
             this.casaToken(Token.ABRE_PARENTESE);
             Exp();
             this.casaToken(Token.FECHA_PARENTESE);
 
-        } else if (this.simboloLido.getToken() == Token.CONSTANTE_LITERAL) {
+        } else if (Globais.informacaoAtual.getToken().equals(Token.CONSTANTE_LITERAL)) {
 
             this.casaToken(Token.CONSTANTE_LITERAL);
 
@@ -466,10 +452,10 @@ public class AnalisadorSintatico {
 
             this.casaToken(Token.ID);
 
-            if(this.simboloLido.getToken() == Token.ABRE_CHAVE) {
-                this.casaToken(Token.ABRE_CHAVE);
+            if(Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+                this.casaToken(Token.ABRE_COLCHETE);
                 Exp();
-                this.casaToken(Token.FECHA_CHAVE);
+                this.casaToken(Token.FECHA_COLCHETE);
             }
         }
 
@@ -477,6 +463,13 @@ public class AnalisadorSintatico {
 
 
 
+}
+
+class ExcecaoSintatica extends Exception {
+    public ExcecaoSintatica(String message)
+    {
+        super(message);
+    }
 }
 
 /*

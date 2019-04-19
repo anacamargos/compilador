@@ -76,6 +76,8 @@ public class Globais {
         return tabelaDeSimbolos.get(lexema);
     }
 
+    public static InformacaoLexica informacaoAtual;
+
 }
 
 class Token {

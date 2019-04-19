@@ -19,9 +19,9 @@ public class Compilador {
 
         GerenciadorInput gerenciadorInput = new GerenciadorInput(file);
         AnalisadorLexico analisadorLexico = new AnalisadorLexico(gerenciadorInput);
-        InformacaoLexica simboloLido = analisadorLexico.proximo();
+        analisadorLexico.setProximo();
         System.out.println(Globais.tabelaDeSimbolos);
-        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(simboloLido, gerenciadorInput, analisadorLexico);
+        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico);
         analisadorSintatico.S();
 
 //        GerenciadorInput gi = new GerenciadorInput("for");
