@@ -14,12 +14,17 @@ import java.io.File;
 public class Compilador {
 
     public static void main(String[] args) throws Exception {
-        File file = new File("/Users/augusto/Developer/compilador/testes/exemplo1.l");
+        File file = new File("/Users/augusto/Developer/compilador/testes/exemplo4.l");
         GerenciadorInput gi = new GerenciadorInput(file);
         AnalisadorLexico al = new AnalisadorLexico(gi);
         AnalisadorSintatico ais = new AnalisadorSintatico(al);
         al.setProximo();
-        ais.S();
+
+        try {
+            ais.S();
+        } catch (ExcecaoLexica | ExcecaoSintatica e) {
+            System.out.println(e.getMessage());
+        }
 //        al.proximo();
 //        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "0xdf", TipoConstante.INTEGER))
 
