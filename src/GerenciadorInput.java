@@ -45,7 +45,7 @@ public class GerenciadorInput {
 
         proximoCaractere = scanner.next().charAt(0);
 
-        if (proximoCaractere == '\r' || proximoCaractere == '\n'){
+        if (proximoCaractere == '\n'){
             linha++;
         }
     }

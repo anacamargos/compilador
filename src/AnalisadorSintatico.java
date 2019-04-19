@@ -27,7 +27,7 @@ public class AnalisadorSintatico {
         } else {
             int linha = analisadorLexico.gerenciadorInput.linha;
             if (Globais.informacaoAtual.getToken() == Token.EOF) {
-                throw new ExcecaoSintatica(linha + ":fim de arquivo nao esperado");
+                throw new ExcecaoSintatica(linha + ":fim de arquivo nao esperado.");
             } else {
                 throw new ExcecaoSintatica(linha + ":token nao esperado [" + Globais.informacaoAtual.getLexema() + "]");
             }
