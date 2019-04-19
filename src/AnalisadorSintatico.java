@@ -25,8 +25,12 @@ public class AnalisadorSintatico {
             analisadorLexico.setProximo();
 
         } else {
-            //TODO gerar erro
-            throw new ExcecaoSintatica("Não foi possível casar token: " + tokenEsperado);
+            int linha = analisadorLexico.gerenciadorInput.linha;
+            if (Globais.informacaoAtual.getToken() == Token.EOF) {
+                throw new ExcecaoSintatica(linha + ":fim de arquivo nao esperado");
+            } else {
+                throw new ExcecaoSintatica(linha + ":token nao esperado [" + Globais.informacaoAtual.getLexema() + "]");
+            }
         }
     }
 

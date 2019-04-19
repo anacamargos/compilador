@@ -14,15 +14,23 @@ import java.io.File;
 public class Compilador {
 
     public static void main(String[] args) throws Exception {
+        File file = new File("/Users/augusto/Developer/compilador/testes/exemplo1.l");
+        GerenciadorInput gi = new GerenciadorInput(file);
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        AnalisadorSintatico ais = new AnalisadorSintatico(al);
+        al.setProximo();
+        ais.S();
+//        al.proximo();
+//        assert (al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "0xdf", TipoConstante.INTEGER))
 
-        File file = new File("teste.txt");
-
-        GerenciadorInput gerenciadorInput = new GerenciadorInput(file);
-        AnalisadorLexico analisadorLexico = new AnalisadorLexico(gerenciadorInput);
-        analisadorLexico.setProximo();
-        System.out.println(Globais.tabelaDeSimbolos);
-        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico);
-        analisadorSintatico.S();
+//        File file = new File("teste.txt");
+//
+//        GerenciadorInput gerenciadorInput = new GerenciadorInput(file);
+//        AnalisadorLexico analisadorLexico = new AnalisadorLexico(gerenciadorInput);
+//        analisadorLexico.setProximo();
+//        System.out.println(Globais.tabelaDeSimbolos);
+//        AnalisadorSintatico analisadorSintatico = new AnalisadorSintatico(analisadorLexico);
+//        analisadorSintatico.S();
 
 //        GerenciadorInput gi = new GerenciadorInput("for");
 //        AnalisadorLexico al = new AnalisadorLexico(gi);
