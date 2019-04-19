@@ -37,7 +37,7 @@ public class AnalisadorLexico {
 
             char proximo = gerenciadorInput.olharProximo();
             if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
-                throw new ExcecaoLexica("Caractere invalido.");
+                throw new ExcecaoLexica(gerenciadorInput.linha +": caractere invalido." + proximo);
             }
 
             switch (estado) {
