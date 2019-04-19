@@ -31,91 +31,6 @@ public class AnalisadorSintatico {
     }
 
     /**
-     * Procedimento S
-     * S -> {D}* {C}* eof
-     */
-
-    public void S () throws Exception {
-        while (Globais.informacaoAtual.getToken().equals(Token.VAR) ||
-                Globais.informacaoAtual.getToken().equals(Token.CONST)) {
-
-            D();
-        }
-
-        while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
-                Globais.informacaoAtual.getToken().equals(Token.FOR) ||
-                Globais.informacaoAtual.getToken().equals(Token.IF) ||
-                Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
-                Globais.informacaoAtual.getToken().equals(Token.READLN) ||
-                Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
-                Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
-
-            C();
-        }
-
-        casaToken(Token.EOF);
-
-    }
-
-    /**
-     * Procedimento D
-     * D -> var { (char | integer) id [N] {, id [N] } ; }  |
-     * 	    const id = valor ;
-     */
-
-    public void D () throws Exception {
-
-        if (Globais.informacaoAtual.getToken().equals(Token.VAR)) {
-
-            casaToken(Token.VAR);
-
-            while (Globais.informacaoAtual.getToken().equals(Token.CHAR) ||
-                    Globais.informacaoAtual.getToken().equals(Token.INTEGER)) {
-
-                if (Globais.informacaoAtual.getToken().equals(Token.CHAR)) {
-                    casaToken(Token.CHAR);
-                } else {
-                    casaToken(Token.INTEGER);
-                }
-
-                casaToken(Token.ID);
-
-                if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
-                        Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
-                    N();
-                }
-
-                while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
-                    casaToken(Token.VIRGULA);
-                    casaToken(Token.ID);
-
-                    if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
-                            Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
-                        N();
-                    }
-
-                }
-
-                casaToken(Token.PONTO_E_VIRGULA);
-
-
-            }
-
-
-        } else {
-
-            casaToken(Token.CONST);
-            casaToken(Token.ID);
-            casaToken(Token.IGUAL);
-            casaToken(Token.CONSTANTE_LITERAL);
-            casaToken(Token.PONTO_E_VIRGULA);
-
-        }
-
-
-    }
-
-    /**
      * Procedimento C
      * C -> id A |
      * 	    For id = Exp to Exp [step valor] do B |
@@ -204,6 +119,91 @@ public class AnalisadorSintatico {
     }
 
     /**
+     * Procedimento S
+     * S -> {D}* {C}* eof
+     */
+
+    public void S () throws Exception {
+        while (Globais.informacaoAtual.getToken().equals(Token.VAR) ||
+                Globais.informacaoAtual.getToken().equals(Token.CONST)) {
+
+            D();
+        }
+
+        while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
+
+            C();
+        }
+
+        casaToken(Token.EOF);
+
+    }
+
+    /**
+     * Procedimento D
+     * D -> var { (char | integer) id [N] {, id [N] } ; }  |
+     * 	    const id = valor ;
+     */
+
+    public void D () throws Exception {
+
+        if (Globais.informacaoAtual.getToken().equals(Token.VAR)) {
+
+            casaToken(Token.VAR);
+
+            while (Globais.informacaoAtual.getToken().equals(Token.CHAR) ||
+                    Globais.informacaoAtual.getToken().equals(Token.INTEGER)) {
+
+                if (Globais.informacaoAtual.getToken().equals(Token.CHAR)) {
+                    casaToken(Token.CHAR);
+                } else {
+                    casaToken(Token.INTEGER);
+                }
+
+                casaToken(Token.ID);
+
+                if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                        Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+                    N();
+                }
+
+                while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
+                    casaToken(Token.VIRGULA);
+                    casaToken(Token.ID);
+
+                    if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                            Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+                        N();
+                    }
+
+                }
+
+                casaToken(Token.PONTO_E_VIRGULA);
+
+
+            }
+
+
+        } else {
+
+            casaToken(Token.CONST);
+            casaToken(Token.ID);
+            casaToken(Token.IGUAL);
+            casaToken(Token.CONSTANTE_LITERAL);
+            casaToken(Token.PONTO_E_VIRGULA);
+
+        }
+
+
+    }
+
+    /**
      * Procedimento N
      * N -> = valor | '[' valor ']'
      */
@@ -278,7 +278,7 @@ public class AnalisadorSintatico {
 
     /**
      * Procedimento E
-     * E -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
+     * E -> C [R] | '{' {C} '}' [R]
      */
     public void E () throws Exception {
 
@@ -293,8 +293,7 @@ public class AnalisadorSintatico {
             C();
 
             if(Globais.informacaoAtual.getToken().equals(Token.ELSE)) {
-                casaToken(Token.ELSE);
-                C();
+                R();
             }
 
         } else {
@@ -314,27 +313,33 @@ public class AnalisadorSintatico {
             casaToken(Token.FECHA_CHAVE);
 
             if(Globais.informacaoAtual.getToken().equals(Token.ELSE)) {
-
-                casaToken(Token.ELSE);
-
-                if (Globais.informacaoAtual.getToken().equals(Token.ABRE_CHAVE)) {
-                    casaToken(Token.ABRE_CHAVE);
-
-                    while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
-                            Globais.informacaoAtual.getToken().equals(Token.FOR) ||
-                            Globais.informacaoAtual.getToken().equals(Token.IF) ||
-                            Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
-                            Globais.informacaoAtual.getToken().equals(Token.READLN) ||
-                            Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
-                            Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
-                        C();
-                    }
-                    casaToken(Token.FECHA_CHAVE);
-
-                } else {
-                    C();
-                }
+                R();
             }
+        }
+    }
+
+    /**
+     * Procedimento R
+     * R ->  else ('{' {C} '}' | C)
+     */
+    public void R () throws Exception {
+        casaToken(Token.ELSE);
+        if (Globais.informacaoAtual.getToken().equals(Token.ABRE_CHAVE)) {
+            casaToken(Token.ABRE_CHAVE);
+
+            while (Globais.informacaoAtual.getToken().equals(Token.ID) ||
+                    Globais.informacaoAtual.getToken().equals(Token.FOR) ||
+                    Globais.informacaoAtual.getToken().equals(Token.IF) ||
+                    Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA) ||
+                    Globais.informacaoAtual.getToken().equals(Token.READLN) ||
+                    Globais.informacaoAtual.getToken().equals(Token.WRITE) ||
+                    Globais.informacaoAtual.getToken().equals(Token.WRITELN)) {
+                C();
+            }
+
+            casaToken(Token.FECHA_CHAVE);
+        } else {
+            C();
         }
     }
 
@@ -346,7 +351,7 @@ public class AnalisadorSintatico {
 
         ExpS();
 
-        if(Globais.informacaoAtual.getToken().equals(Token.IGUAL)) {
+        if (Globais.informacaoAtual.getToken().equals(Token.IGUAL)) {
             casaToken(Token.IGUAL);
             ExpS();
         } else if (Globais.informacaoAtual.getToken().equals(Token.DIFERENTE)) {
@@ -474,28 +479,29 @@ class ExcecaoSintatica extends Exception {
 
 /*
 
-S -> {D} {C}
+     * S -> {D}* {C}* eof
 
-D -> var { (char | integer) id [N] {, id [N] }  }  ; |
-	const id = valor ;
-N -> = valor | '[' valor ']'
+     * D -> var { (char | integer) id [N] {, id [N] } ; }  |
+     * 	    const id = valor ;
+     * N -> = valor | '[' valor ']'
 
-C -> id A |
-	For id = Exp to Exp [step valor] do B |
-	if Exp then E |
-	; |
-    readln'(' id ')'; |
-    write'(' {Exp} ')'; |
-    writeln'(' {Exp} ')';
+     * C -> id A |
+     * 	    For id = Exp to Exp [step valor] do B |
+     * 	    if Exp then D |
+     * 	    ; |
+     *      readln'(' id ')'; |
+     *      write'(' Exp {, Exp} ')'; |
+     *      writeln'(' Exp {, Exp} ')';
 
 
-A -> '['Exp']' = Exp;  |  = Exp;
-B -> C  |  '{' {C} '}'
-E -> C [ else C ]  |  '{' {C} '}' [ else '{' {C} '}' ]
+     * A -> '['Exp']' = Exp;  |  = Exp;
+     * B -> C  |  '{' {C} '}'
+     * E -> C [R] | '{' {C} '}' [R]
+     * R ->  else ('{' {C} '}' | C)
 
-Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
-ExpS -> [ + | -  ] T { (+ | - | or) T }
-T -> F { (* | and | / | %) F }
-F -> not F | valor | id[ '[' Exp ']' ] | '(' Exp ')'
+     * Exp -> ExpS [ ( = | <> | < | > | <= | >= ) ExpS ]
+     * ExpS -> [ + | -  ] T { (+ | - | or) T }
+     * T -> F { (* | and | / | %) F }
+     * F -> not F | valor | id [ '[' Exp ']' ] | '(' Exp ')'
 
 */
