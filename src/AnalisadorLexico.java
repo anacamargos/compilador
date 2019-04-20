@@ -22,6 +22,10 @@ public class AnalisadorLexico {
         this.gerenciadorInput = gerenciadorInput;
     }
 
+    void setProximo() throws Exception {
+        Globais.informacaoAtual = proximo();
+    }
+
     InformacaoLexica proximo() throws Exception {
 
         int estado = ESTADO_INICIAL;
@@ -33,7 +37,7 @@ public class AnalisadorLexico {
 
             char proximo = gerenciadorInput.olharProximo();
             if (!Globais.contemCaractere(proximo) && proximo != Globais.EOF) {
-                throw new ExcecaoLexica(gerenciadorInput.linha +": caractere invalido." + proximo);
+                throw new ExcecaoLexica(gerenciadorInput.linha +":caractere invalido.");
             }
 
             switch (estado) {
@@ -76,7 +80,11 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                         token = Globais.inserirOuBuscar(lexema);
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha + ": lexema nao identificado [" + proximo + "]");
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
 
@@ -98,6 +106,12 @@ public class AnalisadorLexico {
                     } else if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z')) {
                         estado = 1;
                         lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
                 case 3:
@@ -142,7 +156,11 @@ public class AnalisadorLexico {
                         estado = 7;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
                 case 7:
@@ -153,7 +171,11 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.INTEGER;
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
                 case 8:
@@ -176,7 +198,11 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL;
                         tipoConstante = TipoConstante.STRING;
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
                 case 10:
@@ -228,7 +254,11 @@ public class AnalisadorLexico {
                         token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
                         tipoConstante = TipoConstante.CHAR;
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        }
                     }
                     break;
                 default:
