@@ -43,19 +43,18 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "123", TipoConstante.INTEGER))
     }
 
-//    void testNumero2() {
-//        GerenciadorInput gi = new GerenciadorInput("-123");
-//        AnalisadorLexico al = new AnalisadorLexico(gi);
-//        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "-123", TipoConstante.INTEGER))
-//      //  creio que esse teste nao faz sentido porque o sintatico que deve verificar o negativo do numero
-//    }
+    void testNumero2() {
+        GerenciadorInput gi = new GerenciadorInput("-123");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.SUBTRACAO, "-", null))
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "123", TipoConstante.INTEGER))
+    }
 
-//    void testNumero3() {
-//        GerenciadorInput gi = new GerenciadorInput("-");
-//        AnalisadorLexico al = new AnalisadorLexico(gi);
-//        shouldFail(ExcecaoLexica) { al.proximo() }
-//      // codigo aceita somente -
-//    }
+    void testeSubtracao() {
+        GerenciadorInput gi = new GerenciadorInput("-");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.SUBTRACAO, "-", null))
+    }
 
     void testString() {
         GerenciadorInput gi = new GerenciadorInput("\"oi\"");
@@ -200,6 +199,24 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new InformacaoLexica(Token.FOR, "for"));
         assert(al.proximo() == new InformacaoLexica(Token.INTEGER, "integer"));
         assert(al.proximo() == new InformacaoLexica(Token.EOF, "" + Globais.EOF));
+    }
+
+    void testId() {
+        GerenciadorInput gi = new GerenciadorInput("_blabla");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.ID, "_blabla"));
+    }
+
+    void testId2() {
+        GerenciadorInput gi = new GerenciadorInput(".__blab.la");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.ID, ".__blab.la"));
+    }
+
+    void testId3() {
+        GerenciadorInput gi = new GerenciadorInput(".__. ");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        shouldFail(ExcecaoLexica) {al.proximo()}
     }
 
     void testComentario4() {

@@ -71,7 +71,7 @@ public class AnalisadorLexico {
                     } else if (proximo == '=' || proximo == '(' || proximo == ')' || proximo == ',' ||
                             proximo == '+' || proximo == '-' || proximo == '*' ||
                             proximo == ';' || proximo == '{' || proximo == '}' || proximo == '[' ||
-                            proximo == ']' || proximo == '%' || proximo == '.' || proximo == Globais.EOF) {
+                            proximo == ']' || proximo == '%' || proximo == Globais.EOF) {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Globais.inserirOuBuscar(lexema);
