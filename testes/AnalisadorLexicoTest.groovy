@@ -219,6 +219,18 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         shouldFail(ExcecaoLexica) {al.proximo()}
     }
 
+    void testNum00() {
+        GerenciadorInput gi = new GerenciadorInput("00");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "00", TipoConstante.INTEGER))
+    }
+
+    void testNum01() {
+        GerenciadorInput gi = new GerenciadorInput("0 ");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.CONSTANTE_LITERAL, "0", TipoConstante.INTEGER))
+    }
+
     void testComentario4() {
         GerenciadorInput gi = new GerenciadorInput("for = /** isso eh um Comentario12331 ***/ var ;");
         AnalisadorLexico al = new AnalisadorLexico(gi);
