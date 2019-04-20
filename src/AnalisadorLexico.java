@@ -222,8 +222,12 @@ public class AnalisadorLexico {
                         lexema = ""; // como é um comentário resetamos o lexema
                         gerenciadorInput.consumirProximo();
                     } else {
-                        estado = 11;
-                        gerenciadorInput.consumirProximo();
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            estado = 11;
+                            gerenciadorInput.consumirProximo();
+                        }
                     }
                     break;
                 case 12:
@@ -235,8 +239,12 @@ public class AnalisadorLexico {
                         estado = 12;
                         gerenciadorInput.consumirProximo();
                     } else {
-                        estado = 11;
-                        gerenciadorInput.consumirProximo();
+                        if (proximo == Globais.EOF) {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
+                        } else {
+                            estado = 11;
+                            gerenciadorInput.consumirProximo();
+                        }
                     }
                     break;
                 case 13:
