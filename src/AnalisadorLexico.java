@@ -41,128 +41,76 @@ public class AnalisadorLexico {
                     if (Character.isWhitespace(proximo)) {
                         estado = 0;
                         gerenciadorInput.consumirProximo();
-                    } else if (proximo == '\'') {
+                    } else if ('a' <= proximo && proximo <= 'z') {
                         estado = 1;
-                         lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '0') {
-                        estado = 3;
                         lexema += gerenciadorInput.consumirProximo();
-                    } else if ('1' <= proximo && proximo <= '9') {
-                        estado = 6;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '-') {
-                        estado = 7;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '"') {
-                        estado = 8;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '<') {
-                        estado = 9;
+                    } else if (proximo == '.' || proximo == '_') {
+                        estado = 2;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '>') {
+                        estado = 3;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '<') {
+                        estado = 4;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '0') {
+                        estado = 5;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if ('1' <= proximo && proximo <= '9') {
+                        estado = 8;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '"') {
+                        estado = 9;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '/') {
                         estado = 10;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if (proximo == '\'') {
+                        estado = 13;
                         lexema += gerenciadorInput.consumirProximo();
                     } else if (proximo == '=' || proximo == '(' || proximo == ')' || proximo == ',' ||
                             proximo == '+' || proximo == '-' || proximo == '*' ||
                             proximo == ';' || proximo == '{' || proximo == '}' || proximo == '[' ||
-                            proximo == ']' || proximo == '%' || proximo == Globais.EOF) {
+                            proximo == ']' || proximo == '%' || proximo == '.' || proximo == Globais.EOF) {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Globais.inserirOuBuscar(lexema);
-                    } else if ('a' <= proximo && proximo <= 'z') {
-                        estado = 11;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '.' || proximo == '_') {
-                        estado = 12;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (proximo == '/') {
-                        estado = 14;
-                        lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +": lexema nao identificado ["+proximo +"]");
+                        throw new ExcecaoLexica(gerenciadorInput.linha + ": lexema nao identificado [" + proximo + "]");
                     }
                     break;
+
                 case 1:
-                    if (proximo != '\'') {
-                        estado = 2;
-                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
+                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z') ||
+                            proximo == '.' || proximo == '_') {
+                        estado = 1;
+                        lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
+                        estado = ESTADO_FINAL;
+                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
+
                 case 2:
-                    if (proximo == '\'') {
-                        estado = ESTADO_FINAL;
+                    if (proximo == '.' || proximo == '_') {
+                        estado = 2;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
-                        tipoConstante = TipoConstante.CHAR;
-                    } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
+                    } else if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z')) {
+                        estado = 1;
+                        lexema += gerenciadorInput.consumirProximo();
                     }
                     break;
                 case 3:
-                    if (proximo == 'x') {
-                        estado = 4;
+                    if (proximo == '=') {
+                        estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                    } else if ('0' <= proximo && proximo <= '9') {
-                        estado = 6;
-                        lexema += gerenciadorInput.consumirProximo();
+                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
+                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
                 case 4:
-                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'f')) {
-                        estado = 5;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
-                    }
-                    break;
-                case 5:
-                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'f')) {
-                        estado = ESTADO_FINAL;
-                        lexema += gerenciadorInput.consumirProximo();
-                        token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
-                    } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
-                    }
-                    break;
-                case 6:
-                    if ('0' <= proximo && proximo <= '9') {
-                        estado = 6;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else {
-                        estado = ESTADO_FINAL;
-                        token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
-                    }
-                    break;
-                case 7:
-                    if ('0' <= proximo && proximo <= '9') {
-                        estado = 6;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
-                    }
-                    break;
-                case 8:
-                    if (proximo != '"' && proximo != '\n' && proximo != '$') {
-                        estado = 8;
-                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
-                    } else if (proximo == '"') {
-                        estado = ESTADO_FINAL;
-                        lexema += gerenciadorInput.consumirProximo();
-                        token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.STRING;
-                    } else {
-                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
-                    }
-                    break;
-                case 9:
                     if (proximo == '>') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
@@ -176,48 +124,64 @@ public class AnalisadorLexico {
                         token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
+                case 5:
+                    if (proximo == 'x') {
+                        estado = 6;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else if ('0' <= proximo && proximo <= '9') {
+                        estado = 8;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = ESTADO_FINAL;
+                        token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
+                    }
+                    break;
+                case 6:
+                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'f')) {
+                        estado = 7;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                    }
+                    break;
+                case 7:
+
+                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'f')) {
+                        estado = ESTADO_FINAL;
+                        lexema += gerenciadorInput.consumirProximo();
+                        token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
+                    } else {
+                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                    }
+                    break;
+                case 8:
+                    if ('0' <= proximo && proximo <= '9') {
+                        estado = 8;
+                        lexema += gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = ESTADO_FINAL;
+                        token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.INTEGER;
+                    }
+                    break;
+                case 9:
+                    if (proximo != '"' && proximo != '\n' && proximo != '$') {
+                        estado = 9;
+                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
+                    } else if (proximo == '"') {
+                        estado = ESTADO_FINAL;
+                        lexema += gerenciadorInput.consumirProximo();
+                        token = Token.CONSTANTE_LITERAL;
+                        tipoConstante = TipoConstante.STRING;
+                    } else {
+                        throw new ExcecaoLexica(gerenciadorInput.linha + ":lexema nao identificado [" + proximo + "]");
+                    }
+                    break;
                 case 10:
-                    if (proximo == '=') {
-                        estado = ESTADO_FINAL;
-                        lexema += gerenciadorInput.consumirProximo();
-                        token = Globais.inserirOuBuscar(lexema);
-                    } else {
-                        estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
-                    }
-                    break;
-                case 11:
-                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z') ||
-                            proximo == '.' || proximo == '_') {
-                        estado = 13;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else {
-                        estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
-                    }
-                    break;
-                case 12:
-                    if (proximo == '.' || proximo == '_') {
-                        estado = 12;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z')) {
-                        estado = 13;
-                        lexema += gerenciadorInput.consumirProximo();
-                    }
-                    break;
-                case 13:
-                    if (('0' <= proximo && proximo <= '9') || ('a' <= proximo && proximo <= 'z') ||
-                            proximo == '.' || proximo == '_') {
-                        estado = 13;
-                        lexema += gerenciadorInput.consumirProximo();
-                    } else {
-                        estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
-                    }
-                    break;
-                case 14:
                     if (proximo == '*') {
-                        estado = 15;
+                        estado = 11;
                         lexema = ""; // como é um comentário resetamos o lexema
                         gerenciadorInput.consumirProximo();
                     } else {
@@ -225,19 +189,44 @@ public class AnalisadorLexico {
                         token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
-                case 15:
+
+                case 11:
                     if (proximo == '*') {
-                        estado = 16;
+                        estado = 12;
+                        lexema = ""; // como é um comentário resetamos o lexema
                         gerenciadorInput.consumirProximo();
                     } else {
-                        estado = 15;
+                        estado = 11;
                         gerenciadorInput.consumirProximo();
                     }
                     break;
-                case 16:
+                case 12:
                     if (proximo == '/') {
                         estado = ESTADO_INICIAL;
+                        lexema = ""; // como é um comentário resetamos o lexema
                         gerenciadorInput.consumirProximo();
+                    } else  if(proximo == '*'){
+                        estado = 12;
+                        gerenciadorInput.consumirProximo();
+                    } else {
+                        estado = 11;
+                        gerenciadorInput.consumirProximo();
+                    }
+                    break;
+                case 13:
+                    if (proximo != '\'') {
+                        estado = 14;
+                        lexema += gerenciadorInput.consumirProximoCaseSensitive();
+                    } else {
+                        throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
+                    }
+                    break;
+                case 14:
+                    if (proximo == '\'') {
+                        estado = ESTADO_FINAL;
+                        lexema += gerenciadorInput.consumirProximo();
+                        token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
+                        tipoConstante = TipoConstante.CHAR;
                     } else {
                         throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"]");
                     }
