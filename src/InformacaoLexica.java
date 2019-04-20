@@ -14,11 +14,13 @@
  */
 public class InformacaoLexica {
     public final Byte token;
+    public final Byte endereco;
     public final String lexema;
     public final TipoConstante tipoConstante;
 
     InformacaoLexica(Byte token, String lexema) throws Exception {
         this.token = token;
+        this.endereco = 0;
         this.lexema = lexema;
         this.tipoConstante = null;
         this.validar();
@@ -26,6 +28,7 @@ public class InformacaoLexica {
 
     InformacaoLexica(Byte token, String lexema, TipoConstante tipoConstante) throws Exception {
         this.token = token;
+        this.endereco = 0;
         this.lexema = lexema;
         this.tipoConstante = tipoConstante;
     }
