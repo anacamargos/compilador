@@ -241,6 +241,16 @@ class AnalisadorLexicoTest extends GroovyTestCase {
 
     }
 
+    void testMenorMaior() {
+        GerenciadorInput gi = new GerenciadorInput("for = /** isso eh um Comentario12331 ***/ var ;");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        assert(al.proximo() == new InformacaoLexica(Token.FOR, "for"));
+        assert(al.proximo() == new InformacaoLexica(Token.IGUAL, "="));
+        assert(al.proximo() == new InformacaoLexica(Token.VAR, "var"));
+        assert(al.proximo() == new InformacaoLexica(Token.PONTO_E_VIRGULA, ";"));
+
+    }
+
     void testExemplo1() {
         File f = new File("testes/exemplo1.l")
         GerenciadorInput gi = new GerenciadorInput(f)
