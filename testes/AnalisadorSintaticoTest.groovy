@@ -51,5 +51,13 @@ class AnalisadorSintaticoTest extends GroovyTestCase {
         assertEquals("4:fim de arquivo nao esperado.", message);
     }
 
-
+    void testExemplo6() {
+        File f = new File("testes/exemplo6.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("10:fim de arquivo nao esperado.", message);
+    }
 }
