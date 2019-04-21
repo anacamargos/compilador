@@ -38,7 +38,7 @@ public class AnalisadorSintatico {
      * Procedimento C
      * C -> id A |
      * 	    For id = Exp to Exp [step valor] do B |
-     * 	    if Exp then D |
+     * 	    if Exp then E |
      * 	    ; |
      *      readln'(' id ')'; |
      *      write'(' Exp {, Exp} ')'; |
@@ -48,12 +48,10 @@ public class AnalisadorSintatico {
     public void C () throws Exception {
 
         if(Globais.informacaoAtual.getToken().equals(Token.ID)) {
-
             casaToken(Token.ID);
             A();
 
         } else if(Globais.informacaoAtual.getToken().equals(Token.FOR)) {
-
             casaToken(Token.FOR);
             casaToken(Token.ID);
             casaToken(Token.IGUAL);
@@ -70,18 +68,15 @@ public class AnalisadorSintatico {
             B();
 
         } else if(Globais.informacaoAtual.getToken().equals(Token.IF)) {
-
             casaToken(Token.IF);
             Exp();
             casaToken(Token.THEN);
             E();
 
         } else if(Globais.informacaoAtual.getToken().equals(Token.PONTO_E_VIRGULA)) {
-
             casaToken(Token.PONTO_E_VIRGULA);
 
         } else if(Globais.informacaoAtual.getToken().equals(Token.READLN)) {
-
             casaToken(Token.READLN);
             casaToken(Token.ABRE_PARENTESE);
             casaToken(Token.ID);
@@ -89,7 +84,6 @@ public class AnalisadorSintatico {
             casaToken(Token.PONTO_E_VIRGULA);
 
         } else if (Globais.informacaoAtual.getToken().equals(Token.WRITE)) {
-
             casaToken(Token.WRITE);
             casaToken(Token.ABRE_PARENTESE);
 
@@ -99,7 +93,6 @@ public class AnalisadorSintatico {
                 casaToken(Token.VIRGULA);
                 Exp();
             }
-
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
 
@@ -114,12 +107,9 @@ public class AnalisadorSintatico {
                 casaToken(Token.VIRGULA);
                 Exp();
             }
-
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
-
         }
-
     }
 
     /**
@@ -144,13 +134,12 @@ public class AnalisadorSintatico {
 
             C();
         }
-
         casaToken(Token.EOF);
 
     }
 
     /**
-     * Procedimento D
+     * Procedimento D                                    +
      * D -> var { (char | integer) id [N] {, id [N] } ; }  |
      * 	    const id = valor ;
      */
@@ -160,6 +149,31 @@ public class AnalisadorSintatico {
         if (Globais.informacaoAtual.getToken().equals(Token.VAR)) {
 
             casaToken(Token.VAR);
+
+            if(Globais.informacaoAtual.getToken().equals(Token.CHAR)){
+                casaToken(Token.CHAR);
+            } else {
+                casaToken(Token.INTEGER);
+            }
+
+            casaToken(Token.ID);
+
+            if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                    Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+                N();
+            }
+
+            while (Globais.informacaoAtual.getToken().equals(Token.VIRGULA)) {
+                casaToken(Token.VIRGULA);
+                casaToken(Token.ID);
+
+                if(Globais.informacaoAtual.getToken().equals(Token.IGUAL) ||
+                        Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+                    N();
+                }
+            }
+            casaToken(Token.PONTO_E_VIRGULA);
+
 
             while (Globais.informacaoAtual.getToken().equals(Token.CHAR) ||
                     Globais.informacaoAtual.getToken().equals(Token.INTEGER)) {
@@ -185,23 +199,16 @@ public class AnalisadorSintatico {
                             Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                         N();
                     }
-
                 }
-
                 casaToken(Token.PONTO_E_VIRGULA);
-
-
             }
 
-
         } else {
-
             casaToken(Token.CONST);
             casaToken(Token.ID);
             casaToken(Token.IGUAL);
             casaToken(Token.CONSTANTE_LITERAL);
             casaToken(Token.PONTO_E_VIRGULA);
-
         }
 
 
@@ -222,7 +229,6 @@ public class AnalisadorSintatico {
             casaToken(Token.CONSTANTE_LITERAL);
             casaToken(Token.FECHA_COLCHETE);
         }
-
     }
 
     /**
@@ -299,7 +305,6 @@ public class AnalisadorSintatico {
             if(Globais.informacaoAtual.getToken().equals(Token.ELSE)) {
                 R();
             }
-
         } else {
 
             casaToken(Token.ABRE_CHAVE);
@@ -404,7 +409,6 @@ public class AnalisadorSintatico {
             }
 
             T();
-
         }
     }
 
@@ -432,7 +436,6 @@ public class AnalisadorSintatico {
             }
 
             F();
-
         }
     }
 
@@ -443,22 +446,18 @@ public class AnalisadorSintatico {
     public void F() throws Exception {
 
         if(Globais.informacaoAtual.getToken().equals(Token.NOT)) {
-
             this.casaToken(Token.NOT);
             F();
 
         } else if (Globais.informacaoAtual.getToken().equals(Token.ABRE_PARENTESE)) {
-
             this.casaToken(Token.ABRE_PARENTESE);
             Exp();
             this.casaToken(Token.FECHA_PARENTESE);
 
         } else if (Globais.informacaoAtual.getToken().equals(Token.CONSTANTE_LITERAL)) {
-
             this.casaToken(Token.CONSTANTE_LITERAL);
 
         } else {
-
             this.casaToken(Token.ID);
 
             if(Globais.informacaoAtual.getToken().equals(Token.ABRE_COLCHETE)) {
@@ -467,11 +466,7 @@ public class AnalisadorSintatico {
                 this.casaToken(Token.FECHA_COLCHETE);
             }
         }
-
     }
-
-
-
 }
 
 class ExcecaoSintatica extends Exception {
