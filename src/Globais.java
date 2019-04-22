@@ -4,7 +4,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 /**
- * Compilador para a linguagem L
+ * LC para a linguagem L
  * PUC Minas - Compiladores
  * Professor Alexei Machado
  *

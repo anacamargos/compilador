@@ -250,7 +250,15 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         String message = shouldFail { ans.S(); }
         assertEquals("10:fim de arquivo nao esperado.", message);
     }
-    
+
+    void testComentario6() {
+        GerenciadorInput gi = new GerenciadorInput("/* çç */");
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        String message = shouldFail {al.proximo()}
+        assertEquals("1:caractere invalido.", message);
+    }
+
+
     void testMenorMaior() {
         GerenciadorInput gi = new GerenciadorInput("for = /** isso eh um Comentario12331 ***/ var ;");
         AnalisadorLexico al = new AnalisadorLexico(gi);

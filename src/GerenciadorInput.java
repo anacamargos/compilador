@@ -1,5 +1,5 @@
 /**
- * Compilador para a linguagem L
+ * LC para a linguagem L
  * PUC Minas - Compiladores
  * Professor Alexei Machado
  *

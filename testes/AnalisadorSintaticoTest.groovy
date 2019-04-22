@@ -28,7 +28,8 @@ class AnalisadorSintaticoTest extends GroovyTestCase {
         AnalisadorLexico al = new AnalisadorLexico(gi);
         al.setProximo();
         AnalisadorSintatico ans = new AnalisadorSintatico(al);
-        ans.S();
+        String message = shouldFail { ans.S(); }
+        assertEquals("11:token nao esperado [>]", message);
     }
 
     void testExemplo4() {
