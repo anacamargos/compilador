@@ -14,20 +14,20 @@ import java.io.File;
 public class LC {
 
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.out.println("Deve ser passado como parâmetro o nome completo " +
-                    "do programa fonte a ser compilado.");
-            return;
-        }
+//        if (args.length == 0) {
+//            System.out.println("Deve ser passado como parâmetro o nome completo " +
+//                    "do programa fonte a ser compilado.");
+//            return;
+//        }
 
 
-        File file = new File(args[0]);
+        File file = new File("teste.txt");
         GerenciadorInput gi = new GerenciadorInput(file);
         AnalisadorLexico al = new AnalisadorLexico(gi);
         AnalisadorSintatico ais = new AnalisadorSintatico(al);
-        al.setProximo();
 
         try {
+            al.setProximo();
             ais.S();
         } catch (ExcecaoLexica | ExcecaoSintatica e) {
             System.out.println(e.getMessage());

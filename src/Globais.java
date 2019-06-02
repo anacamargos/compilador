@@ -1,7 +1,4 @@
 import java.util.HashMap;
-import java.util.List;
-
-import static java.util.Arrays.asList;
 
 /**
  * LC para a linguagem L
@@ -44,7 +41,7 @@ public class Globais {
         put("<=", Token.MENOR_IGUAL);
         put(",", Token.VIRGULA);
         put("+", Token.SOMA);
-        put("-", Token.SUBTRACAO);
+        put("-", Token.MENOS);
         put("*", Token.ASTERISCO);
         put("/", Token.BARRA);
         put(";", Token.PONTO_E_VIRGULA);
@@ -76,7 +73,7 @@ public class Globais {
         return tabelaDeSimbolos.get(lexema);
     }
 
-    public static InformacaoLexica informacaoAtual;
+    public static Registro registroAtual;
 
 }
 
@@ -102,7 +99,7 @@ class Token {
     static final Byte MENOR_IGUAL = 18;
     static final Byte VIRGULA = 19;
     static final Byte SOMA = 20;
-    static final Byte SUBTRACAO= 21;
+    static final Byte MENOS = 21;
     static final Byte ASTERISCO = 22;
     static final Byte BARRA = 23;
     static final Byte PONTO_E_VIRGULA = 24;
@@ -124,7 +121,65 @@ class Token {
 }
 
 enum TipoConstante {
-    CHAR,
-    STRING,
-    INTEGER
+    CARACTERE,
+    INTEIRO,
+    LOGICO
 }
+
+enum Classe {
+    VAR,
+    CONST
+}
+
+class AtributosRegra {
+    public final TipoConstante tipoConstante;
+    public final int tamanho;
+
+    AtributosRegra(TipoConstante tipoConstante, int tamanho) {
+        this.tipoConstante = tipoConstante;
+        this.tamanho = tamanho;
+    }
+
+    AtributosRegra(TipoConstante tipoConstante) {
+        this.tipoConstante = tipoConstante;
+        this.tamanho = 0;
+    }
+
+    AtributosRegra(int tamanho) {
+        this.tipoConstante = null;
+        this.tamanho = tamanho;
+    }
+
+
+    AtributosRegra(Registro registro) {
+        this.tipoConstante = registro.tipoConstante;
+        this.tamanho = registro.tamanho;
+    }
+
+    boolean isArranjo() {
+        return tamanho > 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AtributosRegra that = (AtributosRegra) o;
+        return tamanho == that.tamanho &&
+                tipoConstante == that.tipoConstante;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

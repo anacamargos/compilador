@@ -12,13 +12,16 @@
 /**
  * Container de informação que será passado do lexico para o sintático
  */
-public class InformacaoLexica {
+public class Registro {
     public final Byte token;
     public final Byte endereco;
     public final String lexema;
-    public final TipoConstante tipoConstante;
+    public TipoConstante tipoConstante;
+    public int tamanho = 0;
+    public Classe classe;
 
-    InformacaoLexica(Byte token, String lexema) throws Exception {
+
+    Registro(Byte token, String lexema) throws Exception {
         this.token = token;
         this.endereco = 0;
         this.lexema = lexema;
@@ -26,7 +29,7 @@ public class InformacaoLexica {
         this.validar();
     }
 
-    InformacaoLexica(Byte token, String lexema, TipoConstante tipoConstante) throws Exception {
+    Registro(Byte token, String lexema, TipoConstante tipoConstante) throws Exception {
         this.token = token;
         this.endereco = 0;
         this.lexema = lexema;
@@ -51,6 +54,10 @@ public class InformacaoLexica {
         }
     }
 
+    boolean isArranjo() {
+        return tamanho > 0;
+    }
+
     @Override
     public String toString() {
         return "Token: " + token + ", lexema: " + lexema + ", tipoConstante: " + tipoConstante;
@@ -61,7 +68,7 @@ public class InformacaoLexica {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        InformacaoLexica that = (InformacaoLexica) o;
+        Registro that = (Registro) o;
 
         if (token != that.token) return false;
         if (lexema != null ? !lexema.equals(that.lexema) : that.lexema != null) return false;

@@ -4,6 +4,7 @@
 
 
 class AnalisadorSintaticoTest extends GroovyTestCase {
+
     void testExemplo1() {
         File f = new File("testes/exemplo1.l")
         GerenciadorInput gi = new GerenciadorInput(f)

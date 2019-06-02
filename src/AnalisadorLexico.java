@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 /**
  * LC para a linguagem L
  * PUC Minas - Compiladores
@@ -23,10 +21,10 @@ public class AnalisadorLexico {
     }
 
     void setProximo() throws Exception {
-        Globais.informacaoAtual = proximo();
+        Globais.registroAtual = proximo();
     }
 
-    InformacaoLexica proximo() throws Exception {
+    Registro proximo() throws Exception {
 
         int estado = ESTADO_INICIAL;
         String lexema = "";
@@ -148,7 +146,7 @@ public class AnalisadorLexico {
                     } else {
                         estado = ESTADO_FINAL;
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
+                        tipoConstante = TipoConstante.INTEIRO;
                     }
                     break;
                 case 6:
@@ -169,7 +167,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
+                        tipoConstante = TipoConstante.INTEIRO;
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
@@ -185,7 +183,7 @@ public class AnalisadorLexico {
                     } else {
                         estado = ESTADO_FINAL;
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEGER;
+                        tipoConstante = TipoConstante.INTEIRO;
                     }
                     break;
                 case 9:
@@ -196,7 +194,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.STRING;
+                        tipoConstante = TipoConstante.CARACTERE;
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
@@ -260,7 +258,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL; // tem que inserir constantes na tabela de símbolos?
-                        tipoConstante = TipoConstante.CHAR;
+                        tipoConstante = TipoConstante.CARACTERE;
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
@@ -275,7 +273,7 @@ public class AnalisadorLexico {
             }
         }
         assert (token != null);
-        return new InformacaoLexica(token, lexema, tipoConstante);
+        return new Registro(token, lexema, tipoConstante);
     }
 
 }
