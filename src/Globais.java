@@ -19,7 +19,7 @@ public class Globais {
             '+', '-', '"', '\'', '/', '*', '%', '^', '@', '!', '?', '>', '<', '=', 13 /* 0dH */, 10 /* 0Ah */ };
     public static final char EOF = '\u001a';
 
-    public static final HashMap<String, Registro> tabelaDeSimbolos =  new HashMap<String, Registro>(){{
+    public static HashMap<String, Registro> tabelaDeSimbolos =  new HashMap<String, Registro>(){{
         put("const", new Registro(Token.CONST, "const"));
         put("var", new Registro(Token.VAR, "var"));
         put("integer", new Registro(Token.INTEGER, "integer"));
@@ -58,6 +58,48 @@ public class Globais {
         put("do", new Registro(Token.DO, "do"));
         put("" + EOF, new Registro(Token.EOF, "" + EOF));
     }};
+
+    public static void setupTabela() {
+        tabelaDeSimbolos = new HashMap<String, Registro>(){{
+            put("const", new Registro(Token.CONST, "const"));
+            put("var", new Registro(Token.VAR, "var"));
+            put("integer", new Registro(Token.INTEGER, "integer"));
+            put("char", new Registro(Token.CHAR, "char"));
+            put("for", new Registro(Token.FOR, "for"));
+            put("if", new Registro(Token.IF, "if"));
+            put("else", new Registro(Token.ELSE, "else"));
+            put("and", new Registro(Token.AND, "and"));
+            put("or", new Registro(Token.OR, "or"));
+            put("not", new Registro(Token.NOT, "not"));
+            put("=", new Registro(Token.IGUAL, "="));
+            put("to", new Registro(Token.TO, "to"));
+            put("(", new Registro(Token.ABRE_PARENTESE, "("));
+            put(")", new Registro(Token.FECHA_PARENTESE, ")"));
+            put("<", new Registro(Token.MENOR, "<"));
+            put(">", new Registro(Token.MAIOR, ">"));
+            put("<>", new Registro(Token.DIFERENTE, "<>"));
+            put(">=", new Registro(Token.MAIOR_IGUAL, ">="));
+            put("<=", new Registro(Token.MENOR_IGUAL, "<="));
+            put(",", new Registro(Token.VIRGULA, ","));
+            put("+", new Registro(Token.SOMA, "+"));
+            put("-", new Registro(Token.MENOS, "-"));
+            put("*", new Registro(Token.ASTERISCO, "*"));
+            put("/", new Registro(Token.BARRA, "/"));
+            put(";", new Registro(Token.PONTO_E_VIRGULA, ";"));
+            put("{", new Registro(Token.ABRE_CHAVE, "{"));
+            put("}", new Registro(Token.FECHA_CHAVE, "}"));
+            put("then", new Registro(Token.THEN, "then"));
+            put("readln", new Registro(Token.READLN, "readln"));
+            put("step", new Registro(Token.STEP, "step"));
+            put("write", new Registro(Token.WRITE, "write"));
+            put("writeln", new Registro(Token.WRITELN, "writeln"));
+            put("%", new Registro(Token.MODULO, "%"));
+            put("[", new Registro(Token.ABRE_COLCHETE, "["));
+            put("]", new Registro(Token.FECHA_COLCHETE, "]"));
+            put("do", new Registro(Token.DO, "do"));
+            put("" + EOF, new Registro(Token.EOF, "" + EOF));
+        }};
+    }
 
     public static boolean contemCaractere(char c) {
         for (char caracter : CARACTERES) {
@@ -167,6 +209,10 @@ class AtributosRegra {
 
     boolean isArranjo() {
         return tamanho > 0;
+    }
+
+    boolean mesmoTipo(AtributosRegra outro) {
+        return this.isArranjo() == outro.isArranjo() && this.tipoConstante == outro.tipoConstante;
     }
 
     @Override
