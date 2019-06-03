@@ -31,7 +31,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void test0x2() {
         GerenciadorInput gi = new GerenciadorInput("0xD");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        shouldFail(ExcecaoLexica) { al.proximo() } 
+        shouldFail(ExcecaoLexica) { al.proximo() }
     }
 
     void testNumero() {
@@ -81,7 +81,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void testString5() {
         GerenciadorInput gi = new GerenciadorInput("\"oi \ntchau\"");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        shouldFail(ExcecaoLexica) { al.proximo() } 
+        shouldFail(ExcecaoLexica) { al.proximo() }
     }
 
     void testIgualdade() {
@@ -187,7 +187,8 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         GerenciadorInput gi = new GerenciadorInput("/*assd*/+");
         AnalisadorLexico al = new AnalisadorLexico(gi);
         assert(al.proximo() == new Registro(Token.SOMA, "+"));
-        assert(al.proximo() == new Registro(Token.EOF, "" + Globais.EOF));
+        Registro prox = al.proximo();
+        assert(prox == new Registro(Token.EOF, "" + Globais.EOF));
     }
 
     void testComentario3() {
@@ -291,7 +292,8 @@ class AnalisadorLexicoTest extends GroovyTestCase {
         assert(al.proximo() == new Registro(Token.CONSTANTE_LITERAL, "\"Digite seu nome: \"", TipoConstante.STRING));
         assert(al.proximo() == new Registro(Token.FECHA_PARENTESE, ")"));
         assert(al.proximo() == new Registro(Token.PONTO_E_VIRGULA, ";"));
-        assert(al.proximo() == new Registro(Token.READLN, "readln"));
+        Registro prox = al.proximo();
+        assert(prox == new Registro(Token.READLN, "readln"));
         assert(al.proximo() == new Registro(Token.ABRE_PARENTESE, "("));
         assert(al.proximo() == new Registro(Token.ID, "nome"));
         assert(al.proximo() == new Registro(Token.FECHA_PARENTESE, ")"));

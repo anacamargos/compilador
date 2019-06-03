@@ -21,15 +21,14 @@ public class Registro {
     public Classe classe;
 
 
-    Registro(Byte token, String lexema) throws Exception {
+    Registro(Byte token, String lexema) {
         this.token = token;
         this.endereco = 0;
         this.lexema = lexema;
         this.tipoConstante = null;
-        this.validar();
     }
 
-    Registro(Byte token, String lexema, TipoConstante tipoConstante) throws Exception {
+    Registro(Byte token, String lexema, TipoConstante tipoConstante) {
         this.token = token;
         this.endereco = 0;
         this.lexema = lexema;

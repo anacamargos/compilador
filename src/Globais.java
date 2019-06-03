@@ -19,44 +19,44 @@ public class Globais {
             '+', '-', '"', '\'', '/', '*', '%', '^', '@', '!', '?', '>', '<', '=', 13 /* 0dH */, 10 /* 0Ah */ };
     public static final char EOF = '\u001a';
 
-    public static final HashMap<String, Byte> tabelaDeSimbolos =  new HashMap<String, Byte>(){{
-        put("const", Token.CONST);
-        put("var", Token.VAR);
-        put("integer", Token.INTEGER);
-        put("char", Token.CHAR);
-        put("for", Token.FOR);
-        put("if", Token.IF);
-        put("else", Token.ELSE);
-        put("and", Token.AND);
-        put("or", Token.OR);
-        put("not", Token.NOT);
-        put("=", Token.IGUAL);
-        put("to", Token.TO);
-        put("(", Token.ABRE_PARENTESE);
-        put(")", Token.FECHA_PARENTESE);
-        put("<", Token.MENOR);
-        put(">", Token.MAIOR);
-        put("<>", Token.DIFERENTE);
-        put(">=", Token.MAIOR_IGUAL);
-        put("<=", Token.MENOR_IGUAL);
-        put(",", Token.VIRGULA);
-        put("+", Token.SOMA);
-        put("-", Token.MENOS);
-        put("*", Token.ASTERISCO);
-        put("/", Token.BARRA);
-        put(";", Token.PONTO_E_VIRGULA);
-        put("{", Token.ABRE_CHAVE);
-        put("}", Token.FECHA_CHAVE);
-        put("then", Token.THEN);
-        put("readln", Token.READLN);
-        put("step", Token.STEP);
-        put("write", Token.WRITE);
-        put("writeln", Token.WRITELN);
-        put("%", Token.MODULO);
-        put("[", Token.ABRE_COLCHETE);
-        put("]", Token.FECHA_COLCHETE);
-        put("do", Token.DO);
-        put("" + EOF, Token.EOF);
+    public static final HashMap<String, Registro> tabelaDeSimbolos =  new HashMap<String, Registro>(){{
+        put("const", new Registro(Token.CONST, "const"));
+        put("var", new Registro(Token.VAR, "var"));
+        put("integer", new Registro(Token.INTEGER, "integer"));
+        put("char", new Registro(Token.CHAR, "char"));
+        put("for", new Registro(Token.FOR, "for"));
+        put("if", new Registro(Token.IF, "if"));
+        put("else", new Registro(Token.ELSE, "else"));
+        put("and", new Registro(Token.AND, "and"));
+        put("or", new Registro(Token.OR, "or"));
+        put("not", new Registro(Token.NOT, "not"));
+        put("=", new Registro(Token.IGUAL, "="));
+        put("to", new Registro(Token.TO, "to"));
+        put("(", new Registro(Token.ABRE_PARENTESE, "("));
+        put(")", new Registro(Token.FECHA_PARENTESE, ")"));
+        put("<", new Registro(Token.MENOR, "<"));
+        put(">", new Registro(Token.MAIOR, ">"));
+        put("<>", new Registro(Token.DIFERENTE, "<>"));
+        put(">=", new Registro(Token.MAIOR_IGUAL, ">="));
+        put("<=", new Registro(Token.MENOR_IGUAL, "<="));
+        put(",", new Registro(Token.VIRGULA, ","));
+        put("+", new Registro(Token.SOMA, "+"));
+        put("-", new Registro(Token.MENOS, "-"));
+        put("*", new Registro(Token.ASTERISCO, "*"));
+        put("/", new Registro(Token.BARRA, "/"));
+        put(";", new Registro(Token.PONTO_E_VIRGULA, ";"));
+        put("{", new Registro(Token.ABRE_CHAVE, "{"));
+        put("}", new Registro(Token.FECHA_CHAVE, "}"));
+        put("then", new Registro(Token.THEN, "then"));
+        put("readln", new Registro(Token.READLN, "readln"));
+        put("step", new Registro(Token.STEP, "step"));
+        put("write", new Registro(Token.WRITE, "write"));
+        put("writeln", new Registro(Token.WRITELN, "writeln"));
+        put("%", new Registro(Token.MODULO, "%"));
+        put("[", new Registro(Token.ABRE_COLCHETE, "["));
+        put("]", new Registro(Token.FECHA_COLCHETE, "]"));
+        put("do", new Registro(Token.DO, "do"));
+        put("" + EOF, new Registro(Token.EOF, "" + EOF));
     }};
 
     public static boolean contemCaractere(char c) {
@@ -66,12 +66,20 @@ public class Globais {
         return false;
     }
 
-    public static Byte inserirOuBuscar(String lexema) {
+    public static Registro inserirOuBuscar(String lexema, TipoConstante tipoConstante) {
         if (!tabelaDeSimbolos.containsKey(lexema)) {
-            tabelaDeSimbolos.put(lexema, Token.ID);
+            tabelaDeSimbolos.put(lexema, new Registro(Token.ID, lexema, tipoConstante));
         }
         return tabelaDeSimbolos.get(lexema);
     }
+
+    public static Registro inserirOuBuscar(String lexema, Byte token, TipoConstante tipoConstante) {
+        if (!tabelaDeSimbolos.containsKey(lexema)) {
+            tabelaDeSimbolos.put(lexema, new Registro(token, lexema, tipoConstante));
+        }
+        return tabelaDeSimbolos.get(lexema);
+    }
+
 
     public static Registro registroAtual;
 
@@ -123,7 +131,8 @@ class Token {
 enum TipoConstante {
     CARACTERE,
     INTEIRO,
-    LOGICO
+    LOGICO,
+    STRING
 }
 
 enum Classe {

@@ -76,7 +76,6 @@ public class AnalisadorLexico {
                             proximo == ']' || proximo == '%' || proximo == Globais.EOF) {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
@@ -93,7 +92,6 @@ public class AnalisadorLexico {
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
 
@@ -116,24 +114,19 @@ public class AnalisadorLexico {
                     if (proximo == '=') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
                 case 4:
                     if (proximo == '>') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Globais.inserirOuBuscar(lexema);
                     } else if (proximo == '=') {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
-                        token = Globais.inserirOuBuscar(lexema);
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
                 case 5:
@@ -194,7 +187,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.CARACTERE;
+                        tipoConstante = TipoConstante.STRING;
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
@@ -210,7 +203,6 @@ public class AnalisadorLexico {
                         gerenciadorInput.consumirProximo();
                     } else {
                         estado = ESTADO_FINAL;
-                        token = Globais.inserirOuBuscar(lexema);
                     }
                     break;
 
@@ -272,8 +264,13 @@ public class AnalisadorLexico {
 
             }
         }
-        assert (token != null);
-        return new Registro(token, lexema, tipoConstante);
+        if (tipoConstante != null && tipoConstante.equals(Token.CONSTANTE_LITERAL)) {
+            return new Registro(Token.CONSTANTE_LITERAL, lexema);
+        } else if (tipoConstante != null) {
+            return Globais.inserirOuBuscar(lexema, token, tipoConstante);
+        } else {
+            return Globais.inserirOuBuscar(lexema, tipoConstante);
+        }
     }
 
 }
