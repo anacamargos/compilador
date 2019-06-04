@@ -58,6 +58,7 @@ public class AnalisadorSintatico {
             if(Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                 casaToken(Token.ABRE_COLCHETE);
                 AtributosRegra atributosExp1 = Exp();
+
                 // regra 40
                 if (atributosExp1.tipoConstante != TipoConstante.INTEIRO) {
                     linha = analisadorLexico.gerenciadorInput.linha;
@@ -77,6 +78,17 @@ public class AnalisadorSintatico {
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
                 casaToken(Token.PONTO_E_VIRGULA);
+
+                // regra geracao 28
+                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp1.endereco + "]");
+                Assembly.addInstrucao("mov Bx, DS:[" + atributosExp2.endereco + "]");
+                if (registroId.tipoConstante == TipoConstante.INTEIRO) {
+                    Assembly.addInstrucao("add Ax, Ax");
+                } else if (Globais.debug && registroId.tipoConstante != TipoConstante.CARACTERE) {
+                    throw new Exception(("Tipo não é int nem char"));
+                }
+                Assembly.addInstrucao("add Ax, " + registroId.endereco);
+                Assembly.addInstrucao("mov DS:[Ax], Bx");
             } else {
                 casaToken(Token.IGUAL);
                 AtributosRegra atributosExp = Exp();
@@ -89,7 +101,9 @@ public class AnalisadorSintatico {
                         throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                     } else if (registroId.tipoConstante == TipoConstante.INTEIRO && atributosExp.tipoConstante != TipoConstante.INTEIRO)
                         throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
-                } else if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {  // regra 42
+                }
+                // regra 42
+                else if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
 
@@ -102,6 +116,10 @@ public class AnalisadorSintatico {
                         throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
                     }
                 }
+
+                // regra geracao 27 - TODO fazer caso string e vetor?
+                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
+                Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
                 casaToken(Token.PONTO_E_VIRGULA);
             }
 
@@ -946,7 +964,6 @@ public class AnalisadorSintatico {
      */
     public AtributosRegra F() throws Exception {
         AtributosRegra atributosF;
-
         int linha;
 
         if(Globais.registroAtual.getToken().equals(Token.NOT)) {
@@ -960,11 +977,20 @@ public class AnalisadorSintatico {
             } else {
                 atributosF = atributosF1;
             }
+
+            // Regra geracao 5
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosF1.endereco + "]");
+            Assembly.addInstrucao("not Ax");
+            atributosF.endereco = Memoria.novoTempInt();
+            Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Ax");
         } else if (Globais.registroAtual.getToken().equals(Token.ABRE_PARENTESE)) {
             this.casaToken(Token.ABRE_PARENTESE);
             AtributosRegra atributosExp = Exp();
             // Regra 2
             atributosF = atributosExp;
+
+            // Regra geracao 4
+            atributosF.endereco = atributosExp.endereco;
 
             this.casaToken(Token.FECHA_PARENTESE);
         } else if (Globais.registroAtual.getToken().equals(Token.CONSTANTE_LITERAL)) {
@@ -974,6 +1000,17 @@ public class AnalisadorSintatico {
             int tamanho = registroValor.tipoConstante == TipoConstante.STRING ? registroValor.lexema.length() - 2 : 0;
             atributosF = new AtributosRegra(registroValor);
             atributosF.tamanho = tamanho;
+
+            // Regra geracao 2
+            if (registroValor.tipoConstante == TipoConstante.INTEIRO) {
+                atributosF.endereco = Memoria.novoTempInt();
+            } else if (registroValor.tipoConstante == TipoConstante.CARACTERE) {
+                atributosF.endereco = Memoria.novoTempChar();
+            } else if (registroValor.tipoConstante == TipoConstante.STRING) {
+                atributosF.endereco = Memoria.novoTempArranjoChar(registroValor.lexema.length() - 2);
+            } else if (Globais.debug) {
+                throw new Exception("TIpo tem que ser int char ou string");
+            }
         } else {
 
             Registro registroId = Globais.registroAtual;
@@ -988,6 +1025,8 @@ public class AnalisadorSintatico {
             // Regra 1
             atributosF = new AtributosRegra(registroId);
 
+            // Regra geracao 1
+            atributosF.endereco = registroId.endereco;
 
             if(Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                 this.casaToken(Token.ABRE_COLCHETE);
@@ -999,6 +1038,15 @@ public class AnalisadorSintatico {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompatíveis.");
                 }
+
+                // Regra geracao 3
+                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
+                if (registroId.tipoConstante == TipoConstante.INTEIRO) {
+                    Assembly.addInstrucao("add Ax, Ax");
+                }
+                Assembly.addInstrucao("add Ax, " + registroId.endereco);
+                Assembly.addInstrucao("mov Ax, DS:[Ax]");
+                Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Ax");
                 this.casaToken(Token.FECHA_COLCHETE);
             }
         }

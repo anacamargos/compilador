@@ -189,6 +189,7 @@ enum Classe {
 class AtributosRegra {
     public final TipoConstante tipoConstante;
     public int tamanho;
+    public int endereco = 0;
 
     AtributosRegra(TipoConstante tipoConstante, int tamanho) {
         this.tipoConstante = tipoConstante;
@@ -255,6 +256,30 @@ class Memoria {
     public static int novoEnderecoArranjoChar(int tamanho) {
         int temp = variavel;
         variavel += tamanho;
+        return temp;
+    }
+
+    public static int novoTempChar() {
+        int temp = temporario;
+        temporario += 1;
+        return temp;
+    }
+
+    public static int novoTempInt() {
+        int temp = temporario;
+        temporario += 2;
+        return temp;
+    }
+
+    public static int novoTempArranjoInt(int tamanho) {
+        int temp = temporario;
+        temporario += 2 * tamanho;
+        return temp;
+    }
+
+    public static int novoTempArranjoChar(int tamanho) {
+        int temp = temporario;
+        temporario += tamanho;
         return temp;
     }
 }
