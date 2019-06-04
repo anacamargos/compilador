@@ -304,7 +304,7 @@ class Rotulos {
     static int contador = 1;
 
     static String geraRotulo() {
-        String retorno = "Rotulo" + contador;
+        String retorno = "Rot" + contador;
         contador++;
         return retorno;
     }
