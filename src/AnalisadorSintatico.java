@@ -677,6 +677,14 @@ public class AnalisadorSintatico {
             registroId.tipoConstante = registroConstante.tipoConstante;
             registroId.tamanho = registroConstante.tamanho;
 
+            // regra 49
+            if(registroConstante.tipoConstante != TipoConstante.INTEIRO &&
+                    registroConstante.tipoConstante != TipoConstante.CARACTERE &&
+                    !registroConstante.isArranjo()) {
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
+            }
+
             casaToken(Token.PONTO_E_VIRGULA);
             // regra geracao 37
             if (registroConstante.tipoConstante == TipoConstante.CARACTERE) {
