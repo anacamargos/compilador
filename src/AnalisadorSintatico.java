@@ -906,12 +906,20 @@ public class AnalisadorSintatico {
         AtributosRegra atributosF1 =  F();
 
         // Regra 6
-        atributosT = atributosF1;
+        atributosT = new AtributosRegra(atributosF1.tipoConstante);
+
+        // Regra geracao 6
+        atributosT.endereco = atributosF1.endereco;
 
         while (Globais.registroAtual.getToken().equals(Token.ASTERISCO) ||
                 Globais.registroAtual.getToken().equals(Token.AND) ||
                 Globais.registroAtual.getToken().equals(Token.BARRA) ||
                 Globais.registroAtual.getToken().equals(Token.MODULO)) {
+
+            boolean condMul = false;
+            boolean condAnd = false;
+            boolean condDiv = false;
+            boolean condMod = false;
 
             if (Globais.registroAtual.getToken().equals(Token.ASTERISCO)) {
                 // regra 7
@@ -919,6 +927,8 @@ public class AnalisadorSintatico {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis.");
                 }
+                // regra geracao 8
+                condMul = true;
 
                 casaToken(Token.ASTERISCO);
             } else if (Globais.registroAtual.getToken().equals(Token.AND)) {
@@ -928,6 +938,8 @@ public class AnalisadorSintatico {
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis.");
                 }
 
+                // regra geracao 9
+                condAnd = true;
                 casaToken(Token.AND);
             } else if (Globais.registroAtual.getToken().equals(Token.BARRA)) {
                 // regra 7
@@ -936,6 +948,9 @@ public class AnalisadorSintatico {
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis");
                 }
 
+                // regra geracao 10
+                condDiv = true;
+
                 casaToken(Token.BARRA);
             } else {
                 // regra 7
@@ -943,7 +958,8 @@ public class AnalisadorSintatico {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis");
                 }
-
+                // regra geracao 11
+                condMod = true;
                 casaToken(Token.MODULO);
             }
 
@@ -953,6 +969,25 @@ public class AnalisadorSintatico {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha +":tipos incompatíveis");
             }
+
+            // regra geracao 7
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosT.endereco + "]");
+            Assembly.addInstrucao("mov Bx, DS:[" + atributosF2.endereco + "]");
+            atributosT.endereco = Memoria.novoTempInt();
+            if (condMul) {
+                Assembly.addInstrucao("mul Ax, Bx");
+                Assembly.addInstrucao("mov DS:[" + atributosT.endereco + "], Ax");
+            } else if (condAnd) {
+                Assembly.addInstrucao("and Ax, Bx");
+                Assembly.addInstrucao("mov DS:[" + atributosT.endereco + "], Ax");
+            } else if (condDiv) {
+                Assembly.addInstrucao("div Bx"); // TODO: verificar div
+                Assembly.addInstrucao("mov DS:[" + atributosT.endereco + "], Ax");
+            } else if (condMod) {
+                Assembly.addInstrucao("mul Ax, Bx"); // TODO: verificar mod
+                Assembly.addInstrucao("mov DS:[" + atributosT.endereco + "], Ax");
+            }
+            Assembly.addInstrucao("");
         }
 
         return atributosT;
