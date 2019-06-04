@@ -752,10 +752,18 @@ public class AnalisadorSintatico {
         AtributosRegra atributosExpS = ExpS();
 
         // regra 17
-        atributosExp = atributosExpS;
+        atributosExp.tipo = new AtributosRegra(atributosExpS.tipo);
 
         // regra 47
         boolean condIgualdade = false;
+
+        // regra geracao 17
+        atributosExp.endereco = atributosExpS.endereco;
+        boolean condDif = false;
+        boolean condMenor = false;
+        boolean condMaior = false;
+        boolean condMenorIgual = false;
+        boolean condMaiorIgual = false;
 
         if (Globais.registroAtual.getToken().equals(Token.IGUAL) ||
             Globais.registroAtual.getToken().equals(Token.MAIOR) ||
@@ -767,32 +775,43 @@ public class AnalisadorSintatico {
             if (Globais.registroAtual.getToken().equals(Token.IGUAL)) {
                 casaToken(Token.IGUAL);
                 // regra 46
+                // regra geracao 18
                 condIgualdade = true;
             } else if (Globais.registroAtual.getToken().equals(Token.DIFERENTE)) {
                 casaToken(Token.DIFERENTE);
 
                 // regra 19
                 condIgualdade = false;
+                // regra geracao 19
+                condDif = true;
             } else if (Globais.registroAtual.getToken().equals(Token.MAIOR)) {
                 casaToken(Token.MAIOR);
 
                 // regra 19
                 condIgualdade = false;
+                // regra geracao 21
+                condMaior = true;
             } else if (Globais.registroAtual.getToken().equals(Token.MENOR)) {
                 casaToken(Token.MENOR);
 
                 // regra 19
                 condIgualdade = false;
+                // regra geracao 20
+                condMenor = true;
             } else if (Globais.registroAtual.getToken().equals(Token.MENOR_IGUAL)) {
                 casaToken(Token.MENOR_IGUAL);
 
                 // regra 19
                 condIgualdade = false;
+                // regra geracao 22
+                condMenorIgual = true;
             } else {
                 casaToken(Token.MAIOR_IGUAL);
 
                 // regra 19
                 condIgualdade = false;
+                // regra geracao 23
+                condMaiorIgual = true;
             }
 
             AtributosRegra atributosExpS2 = ExpS();
@@ -809,6 +828,35 @@ public class AnalisadorSintatico {
                 }
             }
             atributosExp = new AtributosRegra(TipoConstante.LOGICO);
+
+            // regra geracao 24
+            Assembly.addInstrucao("mov Ax, DS:["+ atributosExpS.endereco + "]");
+            Assembly.addInstrucao("cwd");
+            Assembly.addInstrucao("mov Bx, DS:["+ atributosExpS2.endereco + "]");
+            Assembly.addInstrucao("cwd");
+            String rootVerdadeiro = Rotulos.geraRotulo();
+            Assembly.addInstrucao("cmp Ax, Bx");
+            if (condIgualdade) {
+                Assembly.addInstrucao("je " + rootVerdadeiro);
+            } else if(condDif) {
+                Assembly.addInstrucao("jne " + rootVerdadeiro);
+            } else if(condMenor) {
+                Assembly.addInstrucao("jl " + rootVerdadeiro);
+            } else if(condMaior) {
+                Assembly.addInstrucao("jg " + rootVerdadeiro);
+            } else if(condMenorIgual) {
+                Assembly.addInstrucao("jle " + rootVerdadeiro);
+            } else if(condMaiorIgual) {
+                Assembly.addInstrucao("jge " + rootVerdadeiro);
+            }
+            Assembly.addInstrucao("mov Ax, 0");
+            String rootFim = Rotulos.geraRotulo();
+            Assembly.addInstrucao("jmp " + rootFim);
+            Assembly.addInstrucao(rootVerdadeiro + ":");
+            Assembly.addInstrucao("mov Ax, 1");
+            Assembly.addInstrucao(rootFim + ":");
+            atributosExp.endereco = Memoria.novoTempInt();
+            Assembly.addInstrucao("mov DS:["+ atributosExpS.endereco + "], Ax");
         }
 
         return atributosExp;

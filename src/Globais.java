@@ -300,6 +300,16 @@ class Assembly {
 
 }
 
+class Rotulos {
+    static int contador = 1;
+
+    static String geraRotulo() {
+        String retorno = "Rotulo" + contador;
+        contador++;
+        return retorno;
+    }
+}
+
 
 
 
