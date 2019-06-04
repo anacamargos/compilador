@@ -101,6 +101,107 @@ class AnalisadorSintaticoTest extends GroovyTestCase {
         ans.S();
     }
 
+    void testExemplo10() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo10.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S();
+    }
 
+    void testExemplo11() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo11.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("3:tamanho do vetor excede o máximo permitido.", message);
+    }
+    void testExemplo12() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo12.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S();
+    }
 
+    void testExemplo13() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo13.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("3:tamanho do vetor excede o máximo permitido.", message);
+    }
+
+    void testExemplo14() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo14.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S();
+    }
+
+    void testExemplo15() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo15.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S();
+    }
+
+    void testExemplo16() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo16.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("7:tamanho do vetor excede o máximo permitido.", message);
+
+    }
+
+    void testExemplo17() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo17.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("8:tamanho do vetor excede o máximo permitido.", message);
+    }
+
+    void testExemplo18() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo18.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S()
+    }
+
+    void testExemplo19() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo19.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S()
+    }
 }

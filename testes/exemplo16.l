@@ -1,8 +1,7 @@
 /* Exemplo de Programa na linguagem L */
 
-Var integer luigi [3];
-var integer dois [3];
+Var char luigi [3];
 
 
 /*Programa Principal*/
-dois = luigi;
+luigi = "111";

@@ -84,14 +84,24 @@ public class AnalisadorSintatico {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 if(registroId.isArranjo()){
 
-                    if(registroId.tipoConstante == TipoConstante.CARACTERE && (atributosExp.tipoConstante != TipoConstante.STRING ||
-                                atributosExp.tipoConstante !=  TipoConstante.STRING)) {
+                    if(registroId.tipoConstante == TipoConstante.CARACTERE && (atributosExp.tipoConstante != TipoConstante.STRING &&
+                            (atributosExp.tipoConstante !=  TipoConstante.CARACTERE && atributosExp.isArranjo()))) {
                         throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                     } else if (registroId.tipoConstante == TipoConstante.INTEIRO && atributosExp.tipoConstante != TipoConstante.INTEIRO)
                         throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
-                } else if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {
+                } else if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {  // regra 42
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
-                } //regra 42
+                }
+
+                // regra 43
+                if (registroId.isArranjo()) {
+                    if (atributosExp.tipoConstante == TipoConstante.STRING && registroId.tamanho - 1< atributosExp.tamanho) {
+                        throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
+                    }
+                    if (atributosExp.isArranjo() && registroId.tamanho  < atributosExp.tamanho) {
+                        throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
+                    }
+                }
                 casaToken(Token.PONTO_E_VIRGULA);
             }
 
@@ -421,7 +431,11 @@ public class AnalisadorSintatico {
                         if (registroValor.tipoConstante != TipoConstante.INTEIRO || registroValor.isArranjo()) {
                             linha = analisadorLexico.gerenciadorInput.linha;
                             throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
-                        } else if (Integer.valueOf(registroValor.lexema) > 4096) {
+                        } else if ((condInteger &&
+                                   Integer.valueOf(registroValor.lexema) > 2048) ||
+                                    (condChar &&
+                                            Integer.valueOf(registroValor.lexema) > 4096)) {
+
                             linha = analisadorLexico.gerenciadorInput.linha;
                             throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
                         }
@@ -643,6 +657,7 @@ public class AnalisadorSintatico {
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
+            atributosExp = new AtributosRegra(TipoConstante.LOGICO);
         }
 
         return atributosExp;
@@ -798,10 +813,10 @@ public class AnalisadorSintatico {
      */
     public AtributosRegra F() throws Exception {
         AtributosRegra atributosF;
-        Registro registroAtual =  Globais.registroAtual;
+
         int linha;
 
-        if(registroAtual.getToken().equals(Token.NOT)) {
+        if(Globais.registroAtual.getToken().equals(Token.NOT)) {
             this.casaToken(Token.NOT);
             AtributosRegra atributosF1 = F();
 
@@ -812,20 +827,23 @@ public class AnalisadorSintatico {
             } else {
                 atributosF = atributosF1;
             }
-        } else if (registroAtual.getToken().equals(Token.ABRE_PARENTESE)) {
+        } else if (Globais.registroAtual.getToken().equals(Token.ABRE_PARENTESE)) {
             this.casaToken(Token.ABRE_PARENTESE);
             AtributosRegra atributosExp = Exp();
             // Regra 2
             atributosF = atributosExp;
 
             this.casaToken(Token.FECHA_PARENTESE);
-        } else if (registroAtual.getToken().equals(Token.CONSTANTE_LITERAL)) {
+        } else if (Globais.registroAtual.getToken().equals(Token.CONSTANTE_LITERAL)) {
+            Registro registroValor = Globais.registroAtual;
             this.casaToken(Token.CONSTANTE_LITERAL);
             // Regra 3
-            atributosF = new AtributosRegra(registroAtual);
+            int tamanho = registroValor.tipoConstante == TipoConstante.STRING ? registroValor.lexema.length() - 2 : 0;
+            atributosF = new AtributosRegra(registroValor);
+            atributosF.tamanho = tamanho;
         } else {
 
-            Registro registroId = registroAtual;
+            Registro registroId = Globais.registroAtual;
             this.casaToken(Token.ID);
 
             // Regra 24
@@ -838,7 +856,7 @@ public class AnalisadorSintatico {
             atributosF = new AtributosRegra(registroId);
 
 
-            if(registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
+            if(Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
                 this.casaToken(Token.ABRE_COLCHETE);
                 AtributosRegra atributosExp = Exp();
                 // Regra 5

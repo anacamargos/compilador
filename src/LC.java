@@ -26,11 +26,11 @@ public class LC {
         AnalisadorLexico al = new AnalisadorLexico(gi);
         AnalisadorSintatico ais = new AnalisadorSintatico(al);
 
-        try {
+//        try {
             al.setProximo();
             ais.S();
-        } catch (ExcecaoLexica | ExcecaoSintatica e) {
-            System.out.println(e.getMessage());
-        }
+//        } catch (ExcecaoLexica | ExcecaoSintatica | ExcecaoSemantica e) {
+//            System.out.println(e.getMessage());
+//        }
     }
 }

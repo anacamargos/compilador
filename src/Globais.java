@@ -184,7 +184,7 @@ enum Classe {
 
 class AtributosRegra {
     public final TipoConstante tipoConstante;
-    public final int tamanho;
+    public int tamanho;
 
     AtributosRegra(TipoConstante tipoConstante, int tamanho) {
         this.tipoConstante = tipoConstante;
