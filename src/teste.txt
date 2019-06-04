@@ -7,3 +7,5 @@ char oi = 0xBB;
 Const MAXITER=10;
 Const x = 'a';
 Const y = 0xDD;
+
+x = 2;

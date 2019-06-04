@@ -752,7 +752,7 @@ public class AnalisadorSintatico {
         AtributosRegra atributosExpS = ExpS();
 
         // regra 17
-        atributosExp.tipo = new AtributosRegra(atributosExpS.tipo);
+        atributosExp = new AtributosRegra(atributosExpS.tipoConstante);
 
         // regra 47
         boolean condIgualdade = false;
@@ -894,14 +894,14 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
         }
-        atributosExpS.tipo = new AtributoRegra(atributosT1.tipo);
+        atributosExpS = new AtributosRegra(atributosT1.tipoConstante);
 
         // regra geracao 12
         atributosExpS.endereco = atributosT1.endereco;
         if(condMenos) {
             Assembly.addInstrucao("mov Ax, DS:[" + atributosExpS.endereco + "]");
             Assembly.addInstrucao("mul Ax, -1");
-            Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax")
+            Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
         }
 
         while (Globais.registroAtual.getToken().equals(Token.SOMA) ||
