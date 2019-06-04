@@ -151,6 +151,12 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
+            // regra geracao 30
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
+            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
+            String rotFim = Rotulos.geraRotulo();
+            String rotInicio = Rotulos.geraRotulo();
+
             casaToken(Token.TO);
             AtributosRegra atributosExp2 = Exp();
             // regra 27
@@ -158,6 +164,14 @@ public class AnalisadorSintatico {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
+            // regra geracao 31
+            Assembly.addInstrucao(rotInicio + ":");
+            Assembly.addInstrucao("mov Ax, DS:[" + registroId.endereco + "]");
+            Assembly.addInstrucao("mov Bx, DS:[" + atributosExp2.endereco + "]");
+            Assembly.addInstrucao("cmp Ax, Bx");
+            Assembly.addInstrucao("jg " + rotFim);
+
 
             if(Globais.registroAtual.getToken().equals(Token.STEP)) {
                 casaToken(Token.STEP);
@@ -173,14 +187,35 @@ public class AnalisadorSintatico {
             casaToken(Token.DO);
             B();
 
+            // regra geracao 32
+            Assembly.addInstrucao("mov Ax, DS:[" + registroId.endereco + "]");
+            Assembly.addInstrucao("add Ax, 1");
+            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
+            Assembly.addInstrucao("jmp " + rotInicio);
+
+            // regra geracao 33
+            Assembly.addInstrucao(rotFim + ":");
+
         } else if (Globais.registroAtual.getToken().equals(Token.IF)) {
             casaToken(Token.IF);
+
+            // regra geracao 34
+            String rotFalso = Rotulos.geraRotulo();
+
             AtributosRegra atributosExp = Exp();
             // regra 28 TODO
             if (atributosExp.tipoConstante != TipoConstante.LOGICO && !atributosExp.isArranjo()) {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
+            // regra geracao 35
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
+            Assembly.addInstrucao("mov Bx, 0");
+            Assembly.addInstrucao("cmp Ax, Bx");
+            Assembly.addInstrucao("je " + rotFalso);
+
+
             casaToken(Token.THEN);
             // Inicio E
 
@@ -193,6 +228,9 @@ public class AnalisadorSintatico {
                     Globais.registroAtual.getToken().equals(Token.WRITELN)) {
 
                 C();
+
+                // regra geracao 36
+                Assembly.addInstrucao(rotFalso + ":");
 
                 if(Globais.registroAtual.getToken().equals(Token.ELSE)) {
                     // Inicio R
@@ -232,6 +270,9 @@ public class AnalisadorSintatico {
                 }
 
                 casaToken(Token.FECHA_CHAVE);
+
+                // regra geracao 36
+                Assembly.addInstrucao(rotFalso + ":");
 
                 if(Globais.registroAtual.getToken().equals(Token.ELSE)) {
                     // Inicio R
