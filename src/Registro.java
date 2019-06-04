@@ -14,7 +14,7 @@
  */
 public class Registro {
     public final Byte token;
-    public final Byte endereco;
+    public int endereco;
     public final String lexema;
     public TipoConstante tipoConstante;
     public int tamanho = 0;

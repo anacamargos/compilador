@@ -1,4 +1,7 @@
+import java.io.BufferedWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * LC para a linguagem L
@@ -13,6 +16,7 @@ import java.util.HashMap;
 
 
 public class Globais {
+    public static final boolean debug = true;
     public static final char CARACTERES[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
             'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2',
             '3', '4', '5', '6', '7', '8', '9', ' ', '_', '.', ',', ';', '&', ':', '(', ')', '[', ']', '{', '}',
@@ -226,9 +230,50 @@ class AtributosRegra {
 
 }
 
+class Memoria {
+    static int temporario = 0;
+    static int variavel = 16384;
 
+    public static int novoEnderecoChar() {
+        int temp = variavel;
+        variavel += 1;
+        return temp;
+    }
 
+    public static int novoEnderecoInt() {
+        int temp = variavel;
+        variavel += 2;
+        return temp;
+    }
 
+    public static int novoEnderecoArranjoInt(int tamanho) {
+        int temp = variavel;
+        variavel += 2 * tamanho;
+        return temp;
+    }
+
+    public static int novoEnderecoArranjoChar(int tamanho) {
+        int temp = variavel;
+        variavel += tamanho;
+        return temp;
+    }
+}
+
+class Assembly {
+    static List<String> instrucoes = new ArrayList<String>();
+
+    static void addInstrucao(String instrucao) {
+        instrucoes.add(instrucao);
+    }
+
+    static void print() {
+        for (String instrucao :
+                instrucoes) {
+            System.out.println(instrucao);
+        }
+    }
+
+}
 
 
 

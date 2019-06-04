@@ -29,6 +29,7 @@ public class LC {
 //        try {
             al.setProximo();
             ais.S();
+            Assembly.print();
 //        } catch (ExcecaoLexica | ExcecaoSintatica | ExcecaoSemantica e) {
 //            System.out.println(e.getMessage());
 //        }

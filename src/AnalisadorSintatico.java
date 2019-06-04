@@ -326,11 +326,26 @@ public class AnalisadorSintatico {
      */
 
     public void S () throws Exception {
+        Assembly.addInstrucao("sseg SEGMENT STACK ;inicia segmento pilha");
+        Assembly.addInstrucao("byte 4000h DUP(?) ;dimensiona pilha");
+        Assembly.addInstrucao("sseg ENDS ;fim seg. pilha");
+
+        Assembly.addInstrucao("dseg SEGMENT PUBLIC ;início seg. dados");
+        Assembly.addInstrucao("byte 4000h DUP(?) ;dimensiona pilha");
+        Assembly.addInstrucao("sseg ENDS ;fim seg. pilha");
+
         while (Globais.registroAtual.getToken().equals(Token.VAR) ||
                 Globais.registroAtual.getToken().equals(Token.CONST)) {
 
             D();
         }
+
+        Assembly.addInstrucao("dseg ENDS ;fim seg. dados");
+        Assembly.addInstrucao("cseg SEGMENT PUBLIC ;início seg. código");
+        Assembly.addInstrucao("ASSUME CS:cseg, DS:dseg");
+        Assembly.addInstrucao("strt:");
+        Assembly.addInstrucao("mov AX, dseg");
+        Assembly.addInstrucao("mov ds, AX");
 
         while (Globais.registroAtual.getToken().equals(Token.ID) ||
                 Globais.registroAtual.getToken().equals(Token.FOR) ||
@@ -344,6 +359,10 @@ public class AnalisadorSintatico {
         }
         casaToken(Token.EOF);
 
+        Assembly.addInstrucao("mov ah, 4Ch");
+        Assembly.addInstrucao("int 21h");
+        Assembly.addInstrucao("cseg ENDS ;fim seg. código");
+        Assembly.addInstrucao("END strt ;fim programa");
     }
 
     /**
@@ -363,6 +382,8 @@ public class AnalisadorSintatico {
             boolean condInteger = false;
 
             do {
+                condChar = false;
+                condInteger = false;
                 if (Globais.registroAtual.getToken().equals(Token.CHAR)) {
                     // regra 33
                     condChar = true;
@@ -384,16 +405,19 @@ public class AnalisadorSintatico {
                 }
 
                 // regra 35
+                if (Globais.debug && condChar && condInteger) {
+                    throw new Exception("condchar e condInteger ao mesmo tempo");
+                }
                 if (condChar) {
                     registroId.tipoConstante = TipoConstante.CARACTERE;
                 }
                 if (condInteger) {
                     registroId.tipoConstante = TipoConstante.INTEIRO;
                 }
-
+                boolean entrou = false;
                 if (Globais.registroAtual.getToken().equals(Token.IGUAL) ||
                         Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
-
+                    entrou = true;
                     // COMECO N
                     AtributosRegra atributosN;
 
@@ -423,6 +447,33 @@ public class AnalisadorSintatico {
                             linha = analisadorLexico.gerenciadorInput.linha;
                             throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                         }
+
+                        // regra geracao 37
+                        if (condChar) {
+                            registroId.endereco = Memoria.novoEnderecoChar();
+                        }
+                        if (condInteger) {
+                            registroId.endereco = Memoria.novoEnderecoInt();
+                        }
+
+                        // regra geracao 41
+                        if (registroValor2.tipoConstante == TipoConstante.INTEIRO) {
+                            Assembly.addInstrucao("mov Ax, " + registroValor2.lexema);
+                            if (condNeg) {
+                                Assembly.addInstrucao("mul Ax, -1");
+                            }
+                        } else if (registroValor2.tipoConstante == TipoConstante.CARACTERE) {
+                            if (registroValor2.lexema.length() == 3) { // é char sozinho
+                                int caractere = (int) registroValor2.lexema.charAt(1);
+                                Assembly.addInstrucao("mov Ax, " + caractere);
+                            } else if (registroValor2.lexema.length() == 4) {
+                                String valor = registroValor2.lexema.substring(2) + "h";
+                                Assembly.addInstrucao("mov Ax, " + valor);
+                            } else if (Globais.debug) {
+                                throw new Exception("Char deveria ser tamanho 3 ou 5");
+                            }
+                        }
+                        Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
                     } else {
                         casaToken(Token.ABRE_COLCHETE);
                         Registro registroValor = Globais.registroAtual;
@@ -441,8 +492,27 @@ public class AnalisadorSintatico {
                         }
                         registroId.tamanho = Integer.valueOf(registroValor.lexema);
                         casaToken(Token.FECHA_COLCHETE);
+
+                        //regra geracao 42
+                        if (condChar) {
+                            registroId.endereco = Memoria.novoEnderecoArranjoChar(Integer.valueOf(registroValor.lexema));
+                        }
+                        if (condInteger) {
+                            registroId.endereco = Memoria.novoEnderecoArranjoInt(Integer.valueOf(registroValor.lexema));
+                        }
+
                     }
                     // FINAL N
+                }
+
+                if (!entrou) {
+                    // regra geracao 37
+                    if (condChar) {
+                        registroId.endereco = Memoria.novoEnderecoChar();
+                    }
+                    if (condInteger) {
+                        registroId.endereco = Memoria.novoEnderecoInt();
+                    }
                 }
 
                 while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
@@ -496,6 +566,33 @@ public class AnalisadorSintatico {
                                 linha = analisadorLexico.gerenciadorInput.linha;
                                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                             }
+
+                            // regra geracao 37
+                            if (condChar) {
+                                registroId.endereco = Memoria.novoEnderecoChar();
+                            }
+                            if (condInteger) {
+                                registroId.endereco = Memoria.novoEnderecoInt();
+                            }
+
+                            // regra geracao 41
+                            if (registroValor2.tipoConstante == TipoConstante.INTEIRO) {
+                                Assembly.addInstrucao("mov Ax, " + registroValor2.lexema);
+                                if (condNeg) {
+                                    Assembly.addInstrucao("mul Ax, -1");
+                                }
+                            } else if (registroValor2.tipoConstante == TipoConstante.CARACTERE) {
+                                if (registroValor2.lexema.length() == 3) { // é char sozinho
+                                    int caractere = (int) registroValor2.lexema.charAt(1);
+                                    Assembly.addInstrucao("mov Ax, " + caractere);
+                                } else if (registroValor2.lexema.length() == 4) {
+                                    String valor = registroValor2.lexema.substring(2) + "h";
+                                    Assembly.addInstrucao("mov Ax, " + valor);
+                                } else if (Globais.debug) {
+                                    throw new Exception("Char deveria ser tamanho 3 ou 5");
+                                }
+                            }
+                            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
                         } else {
                             casaToken(Token.ABRE_COLCHETE);
                             Registro registroValor = Globais.registroAtual;
@@ -510,6 +607,16 @@ public class AnalisadorSintatico {
                             }
                             registroId.tamanho = Integer.valueOf(registroValor.lexema);
                             casaToken(Token.FECHA_COLCHETE);
+                            //regra geracao 42
+                            if (Globais.debug && condChar && condInteger) {
+                                throw new Exception("condchar e condInteger ao mesmo tempo");
+                            }
+                            if (condChar) {
+                                registroId.endereco = Memoria.novoEnderecoArranjoChar(Integer.valueOf(registroValor.lexema));
+                            }
+                            if (condInteger) {
+                                registroId.endereco = Memoria.novoEnderecoArranjoInt(Integer.valueOf(registroValor.lexema));
+                            }
                         }
                         // FINAL N
                     }
@@ -553,6 +660,32 @@ public class AnalisadorSintatico {
             registroId.tamanho = registroConstante.tamanho;
 
             casaToken(Token.PONTO_E_VIRGULA);
+            // regra geracao 37
+            if (registroConstante.tipoConstante == TipoConstante.CARACTERE) {
+                registroId.endereco = Memoria.novoEnderecoChar();
+            }
+            if (registroConstante.tipoConstante == TipoConstante.INTEIRO) {
+                registroId.endereco = Memoria.novoEnderecoInt();
+            }
+
+            // regra geracao 41
+            if (registroConstante.tipoConstante == TipoConstante.INTEIRO) {
+                Assembly.addInstrucao("mov Ax, " + registroConstante.lexema);
+                if (condNeg) {
+                    Assembly.addInstrucao("mul Ax, -1");
+                }
+            } else if (registroConstante.tipoConstante == TipoConstante.CARACTERE) {
+                if (registroConstante.lexema.length() == 3) { // é char sozinho
+                    int caractere = (int) registroConstante.lexema.charAt(1);
+                    Assembly.addInstrucao("mov Ax, " + caractere);
+                } else if (registroConstante.lexema.length() == 4) {
+                    String valor = registroConstante.lexema.substring(2) + "h";
+                    Assembly.addInstrucao("mov Ax, " + valor);
+                } else if (Globais.debug) {
+                    throw new Exception("Char deveria ser tamanho 3 ou 5");
+                }
+            }
+            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
         }
     }
 

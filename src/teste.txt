@@ -1,8 +1,9 @@
 /* Exemplo de Programa na linguagem L */
 
-Var integer luigi [3];
-var integer dois [3];
-
-
-/*Programa Principal*/
-dois = luigi;
+Var integer n;
+Char nome[40], z = 'a', augusto = 0xAA;
+char ana = 'b';
+char oi = 0xBB;
+Const MAXITER=10;
+Const x = 'a';
+Const y = 0xDD;
