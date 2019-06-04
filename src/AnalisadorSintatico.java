@@ -44,14 +44,15 @@ public class AnalisadorSintatico {
      */
 
     public void C () throws Exception {
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         if(Globais.registroAtual.getToken().equals(Token.ID)) {
             Registro registroId = Globais.registroAtual;
             casaToken(Token.ID);
             // regra 24
             if (registroId.classe == null) {
-                throw new ExcecaoSemantica(linha + "identificador nao declarado [" + registroId.lexema + "]." );
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":identificador nao declarado [" + registroId.lexema + "]." );
             }
 
             if(Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
@@ -59,9 +60,11 @@ public class AnalisadorSintatico {
                 AtributosRegra atributosExp1 = Exp();
                 // regra 40
                 if (atributosExp1.tipoConstante != TipoConstante.INTEIRO) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 } else if (!registroId.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
 
                 casaToken(Token.FECHA_COLCHETE);
@@ -70,16 +73,25 @@ public class AnalisadorSintatico {
 
                 // regra 41
                 if (!registroId.isArranjo() || registroId.tipoConstante != atributosExp2.tipoConstante) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
                 casaToken(Token.PONTO_E_VIRGULA);
             } else {
                 casaToken(Token.IGUAL);
                 AtributosRegra atributosExp = Exp();
-                // regras 42
-                if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
-                }
+
+                linha = analisadorLexico.gerenciadorInput.linha;
+                if(registroId.isArranjo()){
+
+                    if(registroId.tipoConstante == TipoConstante.CARACTERE && (atributosExp.tipoConstante != TipoConstante.STRING ||
+                                atributosExp.tipoConstante !=  TipoConstante.STRING)) {
+                        throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
+                    } else if (registroId.tipoConstante == TipoConstante.INTEIRO && atributosExp.tipoConstante != TipoConstante.INTEIRO)
+                        throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
+                } else if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
+                } //regra 42
                 casaToken(Token.PONTO_E_VIRGULA);
             }
 
@@ -89,29 +101,34 @@ public class AnalisadorSintatico {
             casaToken(Token.ID);
             // regra 24
             if (registroId.classe == null) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":identificador nao declarado[" + registroId.lexema + "].");
             }
             // regra 29
             if (registroId.tipoConstante != TipoConstante.INTEIRO && !registroId.isArranjo()) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + "tipos incompativeis.");
             }
             casaToken(Token.IGUAL);
             AtributosRegra atributosExp =  Exp();
             // regra 27
             if (atributosExp.tipoConstante != TipoConstante.INTEIRO && !atributosExp.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
             // regra 26
             if (!atributosExp.mesmoTipo(new AtributosRegra(registroId))) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
             casaToken(Token.TO);
             AtributosRegra atributosExp2 = Exp();
             // regra 27
             if (atributosExp2.tipoConstante != TipoConstante.INTEIRO && !atributosExp2.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
             if(Globais.registroAtual.getToken().equals(Token.STEP)) {
@@ -120,7 +137,8 @@ public class AnalisadorSintatico {
                 casaToken(Token.CONSTANTE_LITERAL);
                 // regra 25
                 if (registroValor.tipoConstante != TipoConstante.INTEIRO && !registroValor.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
 
@@ -130,9 +148,10 @@ public class AnalisadorSintatico {
         } else if (Globais.registroAtual.getToken().equals(Token.IF)) {
             casaToken(Token.IF);
             AtributosRegra atributosExp = Exp();
-            // regra 28
+            // regra 28 TODO
             if (atributosExp.tipoConstante != TipoConstante.LOGICO && !atributosExp.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
             casaToken(Token.THEN);
             // Inicio E
@@ -221,13 +240,15 @@ public class AnalisadorSintatico {
             casaToken(Token.ID);
             // regra 24
             if (registroId.classe == null) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":identificador nao declarado[" + registroId.lexema + "].");
             }
             // regra 31
             if ((registroId.tipoConstante != TipoConstante.INTEIRO &&
                     registroId.tipoConstante != TipoConstante.CARACTERE &&
                     registroId.tipoConstante != TipoConstante.STRING) || registroId.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
@@ -241,7 +262,8 @@ public class AnalisadorSintatico {
             if ((atributosExp.tipoConstante != TipoConstante.INTEIRO &&
                     atributosExp.tipoConstante != TipoConstante.CARACTERE &&
                     atributosExp.tipoConstante != TipoConstante.STRING) || atributosExp.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
             while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
@@ -251,7 +273,8 @@ public class AnalisadorSintatico {
                 if ((atributosExp2.tipoConstante != TipoConstante.INTEIRO &&
                         atributosExp2.tipoConstante != TipoConstante.CARACTERE &&
                         atributosExp2.tipoConstante != TipoConstante.STRING) || atributosExp2.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
             casaToken(Token.FECHA_PARENTESE);
@@ -267,7 +290,8 @@ public class AnalisadorSintatico {
             if ((atributosExp.tipoConstante != TipoConstante.INTEIRO &&
                     atributosExp.tipoConstante != TipoConstante.CARACTERE &&
                     atributosExp.tipoConstante != TipoConstante.STRING) || atributosExp.isArranjo()) {
-                throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
             while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
@@ -277,7 +301,8 @@ public class AnalisadorSintatico {
                 if ((atributosExp2.tipoConstante != TipoConstante.INTEIRO &&
                         atributosExp2.tipoConstante != TipoConstante.CARACTERE &&
                         atributosExp2.tipoConstante != TipoConstante.STRING) || atributosExp2.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + "tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
             casaToken(Token.FECHA_PARENTESE);
@@ -312,13 +337,13 @@ public class AnalisadorSintatico {
     }
 
     /**
-     * Procedimento D                                    +
-     * D -> var { (char | integer) id [N] {, id [N] } ; }  |
+     * Procedimento D                                                                                                   +
+     * D -> var { (char | integer) id [ ( =  [-] valor | '[' valor ']' ) {, id [ ( =  [-] valor | '[' valor ']') ] } ; }  |
      * 	    const id = valor ;
      */
 
     public void D () throws Exception {
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         if (Globais.registroAtual.getToken().equals(Token.VAR)) {
             casaToken(Token.VAR);
@@ -342,6 +367,7 @@ public class AnalisadorSintatico {
 
                 // regra 23
                 if (registroId.classe != null) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":identificador ja declarado [" + registroId.lexema + "].");
                 } else {
                     registroId.classe = Classe.VAR;
@@ -377,13 +403,15 @@ public class AnalisadorSintatico {
                         // regra 38
                         if (condNeg) {
                             if (registroValor2.tipoConstante != TipoConstante.INTEIRO || registroValor2.isArranjo()) {
-                                throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                                linha = analisadorLexico.gerenciadorInput.linha;
+                                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                             }
                         }
 
                         // regra 36
                         if (registroId.tipoConstante != registroValor2.tipoConstante || registroId.isArranjo() != registroValor2.isArranjo()) {
-                            throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                            linha = analisadorLexico.gerenciadorInput.linha;
+                            throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                         }
                     } else {
                         casaToken(Token.ABRE_COLCHETE);
@@ -391,8 +419,10 @@ public class AnalisadorSintatico {
                         casaToken(Token.CONSTANTE_LITERAL);
                         // regra 20
                         if (registroValor.tipoConstante != TipoConstante.INTEIRO || registroValor.isArranjo()) {
-                            throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                            linha = analisadorLexico.gerenciadorInput.linha;
+                            throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                         } else if (Integer.valueOf(registroValor.lexema) > 4096) {
+                            linha = analisadorLexico.gerenciadorInput.linha;
                             throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
                         }
                         registroId.tamanho = Integer.valueOf(registroValor.lexema);
@@ -407,6 +437,7 @@ public class AnalisadorSintatico {
                     casaToken(Token.ID);
                     // regra 23
                     if (registroId.classe != null) {
+                        linha = analisadorLexico.gerenciadorInput.linha;
                         throw new ExcecaoSemantica(linha + ":identificador ja declarado [" + registroId.lexema + "].");
                     } else {
                         registroId.classe = Classe.VAR;
@@ -441,13 +472,15 @@ public class AnalisadorSintatico {
                             // regra 38
                             if (condNeg) {
                                 if (registroValor2.tipoConstante != TipoConstante.INTEIRO || registroValor2.isArranjo()) {
-                                    throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                                    linha = analisadorLexico.gerenciadorInput.linha;
+                                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                                 }
                             }
 
                             // regra 36
                             if (registroId.tipoConstante != registroValor2.tipoConstante || registroId.isArranjo() != registroValor2.isArranjo()) {
-                                throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                                linha = analisadorLexico.gerenciadorInput.linha;
+                                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                             }
                         } else {
                             casaToken(Token.ABRE_COLCHETE);
@@ -455,8 +488,10 @@ public class AnalisadorSintatico {
                             casaToken(Token.CONSTANTE_LITERAL);
                             // regra 20
                             if (registroValor.tipoConstante != TipoConstante.INTEIRO || registroValor.isArranjo()) {
-                                throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                                linha = analisadorLexico.gerenciadorInput.linha;
+                                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                             } else if (Integer.valueOf(registroValor.lexema) > 4096) {
+                                linha = analisadorLexico.gerenciadorInput.linha;
                                 throw new ExcecaoSemantica(linha + ":tamanho do vetor excede o máximo permitido.");
                             }
                             registroId.tamanho = Integer.valueOf(registroValor.lexema);
@@ -475,6 +510,7 @@ public class AnalisadorSintatico {
             casaToken(Token.ID);
             // regra 21
             if (registroId.classe != null) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":identificador ja declarado [" + registroId.lexema + "].");
             } else {
                 registroId.classe = Classe.CONST;
@@ -494,7 +530,8 @@ public class AnalisadorSintatico {
             // regra 38
             if (condNeg) {
                 if (registroConstante.tipoConstante != TipoConstante.INTEIRO || registroConstante.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
             // regra 22
@@ -545,7 +582,7 @@ public class AnalisadorSintatico {
      */
     public AtributosRegra Exp () throws Exception {
         AtributosRegra atributosExp;
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         AtributosRegra atributosExpS = ExpS();
 
@@ -559,7 +596,8 @@ public class AnalisadorSintatico {
             Globais.registroAtual.getToken().equals(Token.MAIOR) ||
             Globais.registroAtual.getToken().equals(Token.MENOR) ||
             Globais.registroAtual.getToken().equals(Token.MENOR_IGUAL) ||
-            Globais.registroAtual.getToken().equals(Token.MAIOR_IGUAL)) {
+            Globais.registroAtual.getToken().equals(Token.MAIOR_IGUAL) ||
+            Globais.registroAtual.getToken().equals(Token.DIFERENTE)) {
 
             if (Globais.registroAtual.getToken().equals(Token.IGUAL)) {
                 casaToken(Token.IGUAL);
@@ -596,11 +634,13 @@ public class AnalisadorSintatico {
 
             // regra 18
             if (!atributosExpS.mesmoTipo(atributosExpS2)) {
-                throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                linha = analisadorLexico.gerenciadorInput.linha;
+                throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
             if (!condIgualdade) {
                 if (atributosExpS.isArranjo()) {
-                    throw new ExcecaoSemantica(linha + ": tipos incompativeis.");
+                    linha = analisadorLexico.gerenciadorInput.linha;
+                    throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             }
         }
@@ -615,7 +655,7 @@ public class AnalisadorSintatico {
 
     public AtributosRegra ExpS () throws Exception {
         AtributosRegra atributosExpS;
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         // regra 10
         boolean condMais = false;
@@ -636,6 +676,7 @@ public class AnalisadorSintatico {
         // regra 13
         if ((condMais || condMenos)) {
             if (atributosT1.tipoConstante != TipoConstante.INTEIRO && atributosT1.tipoConstante != TipoConstante.CARACTERE) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
         }
@@ -668,14 +709,17 @@ public class AnalisadorSintatico {
 
             // regra 14
             if (atributosT1.tipoConstante != atributosT2.tipoConstante) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
             if (condLog) {
                 if (atributosT1.tipoConstante != TipoConstante.LOGICO) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
             } else if (condMais || condMenos) {
                 if (atributosT1.tipoConstante != TipoConstante.INTEIRO && atributosT1.tipoConstante != TipoConstante.CARACTERE) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
 
@@ -691,7 +735,7 @@ public class AnalisadorSintatico {
      */
     public AtributosRegra T() throws Exception {
         AtributosRegra atributosT;
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         AtributosRegra atributosF1 =  F();
 
@@ -706,6 +750,7 @@ public class AnalisadorSintatico {
             if (Globais.registroAtual.getToken().equals(Token.ASTERISCO)) {
                 // regra 7
                 if (atributosT.tipoConstante != TipoConstante.INTEIRO) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis.");
                 }
 
@@ -713,6 +758,7 @@ public class AnalisadorSintatico {
             } else if (Globais.registroAtual.getToken().equals(Token.AND)) {
                 // regra 8
                 if (atributosT.tipoConstante != TipoConstante.LOGICO) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis.");
                 }
 
@@ -720,6 +766,7 @@ public class AnalisadorSintatico {
             } else if (Globais.registroAtual.getToken().equals(Token.BARRA)) {
                 // regra 7
                 if (atributosT.tipoConstante != TipoConstante.INTEIRO) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis");
                 }
 
@@ -727,6 +774,7 @@ public class AnalisadorSintatico {
             } else {
                 // regra 7
                 if (atributosT.tipoConstante != TipoConstante.INTEIRO) {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha +":tipos incompatíveis");
                 }
 
@@ -736,6 +784,7 @@ public class AnalisadorSintatico {
             AtributosRegra atributosF2 =  F();
             // regra 9
             if (!atributosF1.equals(atributosF2)) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha +":tipos incompatíveis");
             }
         }
@@ -750,7 +799,7 @@ public class AnalisadorSintatico {
     public AtributosRegra F() throws Exception {
         AtributosRegra atributosF;
         Registro registroAtual =  Globais.registroAtual;
-        int linha = analisadorLexico.gerenciadorInput.linha;
+        int linha;
 
         if(registroAtual.getToken().equals(Token.NOT)) {
             this.casaToken(Token.NOT);
@@ -758,6 +807,7 @@ public class AnalisadorSintatico {
 
             // Regra  4
             if (atributosF1.tipoConstante != TipoConstante.LOGICO) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompatíveis.");
             } else {
                 atributosF = atributosF1;
@@ -780,6 +830,7 @@ public class AnalisadorSintatico {
 
             // Regra 24
             if (registroId.classe == null) {
+                linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":identificador nao declarado[" + registroId.lexema + "].");
             }
 
@@ -794,6 +845,7 @@ public class AnalisadorSintatico {
                 if (atributosExp.tipoConstante == TipoConstante.INTEIRO && registroId.tamanho > 0) {
                     atributosF = new AtributosRegra(registroId.tipoConstante, 0);
                 } else {
+                    linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompatíveis.");
                 }
                 this.casaToken(Token.FECHA_COLCHETE);

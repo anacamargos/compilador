@@ -77,10 +77,10 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                     } else {
-                        if (proximo == Globais.EOF) {
-                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
-                        } else {
+                        if (proximo != Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":lexema nao identificado ["+proximo +"].");
+                        } else {
+                            throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");
                         }
                     }
                     break;
@@ -160,7 +160,7 @@ public class AnalisadorLexico {
                         estado = ESTADO_FINAL;
                         lexema += gerenciadorInput.consumirProximo();
                         token = Token.CONSTANTE_LITERAL;
-                        tipoConstante = TipoConstante.INTEIRO;
+                        tipoConstante = TipoConstante.CARACTERE;
                     } else {
                         if (proximo == Globais.EOF) {
                             throw new ExcecaoLexica(gerenciadorInput.linha +":fim de arquivo nao esperado.");

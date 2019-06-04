@@ -1,2 +1,8 @@
-/* asgasjdh $ */
-var integer idade = 5;
+/* Exemplo de Programa na linguagem L */
+
+
+Var char a = 'A';
+
+	if(a <> 'D') then {
+		a = 'A' + 'B';
+	}

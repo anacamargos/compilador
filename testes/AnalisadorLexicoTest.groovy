@@ -24,7 +24,7 @@ class AnalisadorLexicoTest extends GroovyTestCase {
     void test0x() {
         GerenciadorInput gi = new GerenciadorInput("0xDF 0xgg");
         AnalisadorLexico al = new AnalisadorLexico(gi);
-        assert (al.proximo() == new Registro(Token.CONSTANTE_LITERAL, "0xdf", TipoConstante.INTEIRO))
+            assert (al.proximo() == new Registro(Token.CONSTANTE_LITERAL, "0xdf", TipoConstante.CARACTERE))
         shouldFail(ExcecaoLexica) { al.proximo() }
     }
 

@@ -21,7 +21,7 @@ public class LC {
 //        }
 
 
-        File file = new File("teste.txt");
+        File file = new File("src/teste.txt");
         GerenciadorInput gi = new GerenciadorInput(file);
         AnalisadorLexico al = new AnalisadorLexico(gi);
         AnalisadorSintatico ais = new AnalisadorSintatico(al);

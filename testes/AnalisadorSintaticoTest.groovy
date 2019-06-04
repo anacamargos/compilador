@@ -79,4 +79,28 @@ class AnalisadorSintaticoTest extends GroovyTestCase {
         AnalisadorSintatico ans = new AnalisadorSintatico(al);
         ans.S();
     }
+
+    void testExemplo8() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo8.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        String message = shouldFail { ans.S(); }
+        assertEquals("9:fim de arquivo nao esperado.", message);
+    }
+
+    void testExemplo9() {
+        Globais.setupTabela()
+        File f = new File("testes/exemplo9.l")
+        GerenciadorInput gi = new GerenciadorInput(f)
+        AnalisadorLexico al = new AnalisadorLexico(gi);
+        al.setProximo();
+        AnalisadorSintatico ans = new AnalisadorSintatico(al);
+        ans.S();
+    }
+
+
+
 }
