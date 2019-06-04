@@ -43,7 +43,7 @@ public class AnalisadorSintatico {
      *      writeln'(' Exp {, Exp} ')';
      */
 
-    public void C () throws Exception {
+    public void C() throws Exception {
         int linha;
 
         if(Globais.registroAtual.getToken().equals(Token.ID)) {
@@ -80,15 +80,15 @@ public class AnalisadorSintatico {
                 casaToken(Token.PONTO_E_VIRGULA);
 
                 // regra geracao 28
-                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp1.endereco + "]");
+                Assembly.addInstrucao("mov DI, DS:[" + atributosExp1.endereco + "]");
                 Assembly.addInstrucao("mov Bx, DS:[" + atributosExp2.endereco + "]");
                 if (registroId.tipoConstante == TipoConstante.INTEIRO) {
-                    Assembly.addInstrucao("add Ax, Ax");
+                    Assembly.addInstrucao("add DI, DI");
                 } else if (Globais.debug && registroId.tipoConstante != TipoConstante.CARACTERE) {
                     throw new Exception(("Tipo não é int nem char"));
                 }
-                Assembly.addInstrucao("add Ax, " + registroId.endereco);
-                Assembly.addInstrucao("mov DS:[Ax], Bx");
+                Assembly.addInstrucao("add DI, " + registroId.endereco);
+                Assembly.addInstrucao("mov DS:[DI], Bx");
             } else {
                 casaToken(Token.IGUAL);
                 AtributosRegra atributosExp = Exp();
@@ -335,6 +335,10 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
 
+//            // regras geracao 43
+//            Assembly.addInstrucao("mov DI, " + atributosExp.endereco);
+//            Assembly.addInstrucao("mov Cx, 0");
+
             while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
                 casaToken(Token.VIRGULA);
                 AtributosRegra atributosExp2 = Exp();
@@ -391,7 +395,6 @@ public class AnalisadorSintatico {
 
         Assembly.addInstrucao("dseg SEGMENT PUBLIC ;início seg. dados");
         Assembly.addInstrucao("byte 4000h DUP(?) ;dimensiona pilha");
-        Assembly.addInstrucao("sseg ENDS ;fim seg. pilha");
 
         while (Globais.registroAtual.getToken().equals(Token.VAR) ||
                 Globais.registroAtual.getToken().equals(Token.CONST)) {
@@ -1201,8 +1204,8 @@ public class AnalisadorSintatico {
                 if (registroId.tipoConstante == TipoConstante.INTEIRO) {
                     Assembly.addInstrucao("add Ax, Ax");
                 }
-                Assembly.addInstrucao("add Ax, " + registroId.endereco);
-                Assembly.addInstrucao("mov Ax, DS:[Ax]");
+                Assembly.addInstrucao("add DI, " + registroId.endereco);
+                Assembly.addInstrucao("mov Ax, DS:[DI]");
                 Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Ax");
                 this.casaToken(Token.FECHA_COLCHETE);
             }

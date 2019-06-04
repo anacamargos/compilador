@@ -1,4 +1,5 @@
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -292,10 +293,18 @@ class Assembly {
     }
 
     static void print() {
-        for (String instrucao :
-                instrucoes) {
+        for (String instrucao : instrucoes) {
             System.out.println(instrucao);
         }
+    }
+
+    static void salvarArquivo(String caminho) throws Exception {
+        BufferedWriter bw = new BufferedWriter (new FileWriter(caminho));
+        for (String instrucao : instrucoes) {
+            bw.write(instrucao + "\n");
+        }
+        bw.close();
+
     }
 
 }

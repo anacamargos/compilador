@@ -1,11 +1,6 @@
 /* Exemplo de Programa na linguagem L */
 
-Var integer n;
-Char nome[40], z = 'a', augusto = 0xAA;
-char ana = 'b';
-char oi = 0xBB;
-Const MAXITER=10;
-Const x = 'a';
-Const y = 0xDD;
 
-x = 2;
+/* Programa Principal */
+
+  write('a');
