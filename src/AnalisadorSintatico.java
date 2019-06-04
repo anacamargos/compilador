@@ -846,7 +846,15 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
         }
-        atributosExpS = atributosT1;
+        atributosExpS.tipo = new AtributoRegra(atributosT1.tipo);
+
+        // regra geracao 12
+        atributosExpS.endereco = atributosT1.endereco;
+        if(condMenos) {
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosExpS.endereco + "]");
+            Assembly.addInstrucao("mul Ax, -1");
+            Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax")
+        }
 
         while (Globais.registroAtual.getToken().equals(Token.SOMA) ||
                 Globais.registroAtual.getToken().equals(Token.MENOS) ||
@@ -890,6 +898,23 @@ public class AnalisadorSintatico {
                 }
 
             }
+
+            // regra geracao 16
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosExpS.endereco + "]");
+            Assembly.addInstrucao("mov Ax, DS:[" + atributosT2.endereco + "]");
+            atributosExpS.endereco = Memoria.novoTempInt();
+
+            if (condMais) {
+                Assembly.addInstrucao("add Ax, Bx");
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+            } else if (condMenos) {
+                Assembly.addInstrucao("sub Ax, Bx");
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+            } else if (condLog) {
+                Assembly.addInstrucao("or Ax, Bx");
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+            }
+
         }
 
         return atributosExpS;
