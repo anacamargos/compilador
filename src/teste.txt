@@ -2,6 +2,4 @@
 
 var integer i;
 
-for i = 1 to 10 step 2 do {
-   writeln("loop");
-}
+readln(i);

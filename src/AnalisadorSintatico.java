@@ -328,7 +328,7 @@ public class AnalisadorSintatico {
             casaToken(Token.PONTO_E_VIRGULA);
 
         }
-        else if(Globais.registroAtual.getToken().equals(Token.READLN)) {
+        else if (Globais.registroAtual.getToken().equals(Token.READLN)) {
             casaToken(Token.READLN);
             casaToken(Token.ABRE_PARENTESE);
             Registro registroId = Globais.registroAtual;
@@ -356,11 +356,16 @@ public class AnalisadorSintatico {
             }
             n =  n <= 255 ? n : 255;
             int endereco = Memoria.novoTempArranjoChar(tamanho);
-            Assembly.addInstrucao("mov Ax, " + n);
-            Assembly.addInstrucao("mov DS:[" + endereco + "], Ax");
-            Assembly.addInstrucao("mov ah, 08h");
-            Assembly.addInstrucao("mov dl, 0Ah");
-            Assembly.addInstrucao("int 21h");
+            String rotulo = Rotulos.geraRotulo();
+
+//            Assembly.addInstrucao(rotulo + ": ; rotulo leitura");
+//            Assembly.addInstrucao("mov Ax, " + n + "; move indice atual");
+//            Assembly.addInstrucao("mov DS:[" + endereco + "], Ax");
+//            Assembly.addInstrucao("mov ah, 09h");
+//            Assembly.addInstrucao("int 21h");
+//            Assembly.addInstrucao("cmp ");
+
+
 
             Assembly.addInstrucao("mov di, " + (endereco + 2));
             Assembly.addInstrucao("mov ax, 0");
