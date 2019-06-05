@@ -1,6 +1,9 @@
 /* Exemplo de Programa na linguagem L */
 
+var integer a = 1, b = 2;
 
-/* Programa Principal */
-
-  write('a');
+if a > b then {
+   writeln("b maior");
+} else {
+   writeln("a maior");
+}

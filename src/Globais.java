@@ -287,9 +287,14 @@ class Memoria {
 
 class Assembly {
     static List<String> instrucoes = new ArrayList<String>();
+    static List<String> declaracoes = new ArrayList<String>();
 
     static void addInstrucao(String instrucao) {
         instrucoes.add(instrucao);
+    }
+
+    static void addDeclaracao(String instrucao) {
+        declaracoes.add(instrucao);
     }
 
     static void print() {
@@ -300,7 +305,28 @@ class Assembly {
 
     static void salvarArquivo(String caminho) throws Exception {
         BufferedWriter bw = new BufferedWriter (new FileWriter(caminho));
-        for (String instrucao : instrucoes) {
+
+        List<String> tudo = new ArrayList<String>();
+        tudo.add("sseg SEGMENT STACK ;inicia segmento pilha");
+        tudo.add("byte 4000h DUP(?) ;dimensiona pilha");
+        tudo.add("sseg ENDS ;fim seg. pilha");
+        tudo.add("dseg SEGMENT PUBLIC ;início seg. dados");
+        tudo.add("byte 4000h DUP(?) ;dimensiona pilha");
+        tudo.addAll(declaracoes);
+        tudo.add("dseg ENDS ;fim seg. dados");
+        tudo.add("cseg SEGMENT PUBLIC ;início seg. código");
+        tudo.add("ASSUME CS:cseg, DS:dseg");
+        tudo.add("strt:");
+        tudo.add("mov AX, dseg");
+        tudo.add("mov ds, AX");
+        tudo.addAll(instrucoes);
+        tudo.add("mov ah, 4Ch");
+        tudo.add("int 21h");
+        tudo.add("cseg ENDS ;fim seg. código");
+        tudo.add("END strt ;fim programa");
+
+
+        for (String instrucao : tudo) {
             bw.write(instrucao + "\n");
         }
         bw.close();
