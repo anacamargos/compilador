@@ -1,9 +1,9 @@
 /* Exemplo de Programa na linguagem L */
 
-var integer a = 1, b = 2;
+var integer a = 100, b = 2;
 
 if a > b then {
-   writeln("b maior");
+   write("maior eh o a");
 } else {
-   writeln("a maior");
+    write("nao eh o maior");
 }

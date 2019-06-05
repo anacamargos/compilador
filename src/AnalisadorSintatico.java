@@ -211,6 +211,7 @@ public class AnalisadorSintatico {
 
             // regra geracao 34
             String rotFalso = Rotulos.geraRotulo();
+            String rotFim = Rotulos.geraRotulo();
 
             AtributosRegra atributosExp = Exp();
             // regra 28 TODO
@@ -218,6 +219,7 @@ public class AnalisadorSintatico {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
 
             // regra geracao 35
             Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
@@ -238,6 +240,7 @@ public class AnalisadorSintatico {
                     Globais.registroAtual.getToken().equals(Token.WRITELN)) {
 
                 C();
+                Assembly.addInstrucao("jmp "+rotFim);
 
                 // regra geracao 36
                 Assembly.addInstrucao(rotFalso + ":");
@@ -277,9 +280,11 @@ public class AnalisadorSintatico {
                         (Globais.registroAtual.getToken().equals(Token.WRITE)) ||
                         (Globais.registroAtual.getToken().equals(Token.WRITELN))) {
                     C();
+                    Assembly.addInstrucao("jmp "+rotFim);
                 }
 
                 casaToken(Token.FECHA_CHAVE);
+
 
                 // regra geracao 36
                 Assembly.addInstrucao(rotFalso + ":");
@@ -306,7 +311,9 @@ public class AnalisadorSintatico {
                     }
                     // Fim R
                 }
+
             }
+            Assembly.addInstrucao(rotFim + ":");
             // Fim E
 
         }
@@ -1211,31 +1218,39 @@ public class AnalisadorSintatico {
 
             // regra geracao 24
             Assembly.addInstrucao("mov Ax, DS:["+ atributosExpS.endereco + "]");
-            Assembly.addInstrucao("cwd");
             Assembly.addInstrucao("mov Bx, DS:["+ atributosExpS2.endereco + "]");
-            Assembly.addInstrucao("cwd");
+            Assembly.addInstrucao("mov Ah, 0");
+            Assembly.addInstrucao("mov Bh, 0");
+
             String rootVerdadeiro = Rotulos.geraRotulo();
             Assembly.addInstrucao("cmp Ax, Bx");
             if (condIgualdade) {
                 Assembly.addInstrucao("je " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condDif) {
                 Assembly.addInstrucao("jne " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMenor) {
                 Assembly.addInstrucao("jl " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMaior) {
                 Assembly.addInstrucao("jg " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMenorIgual) {
                 Assembly.addInstrucao("jle " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMaiorIgual) {
                 Assembly.addInstrucao("jge " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             }
             Assembly.addInstrucao("mov Ax, 0");
             String rootFim = Rotulos.geraRotulo();
             Assembly.addInstrucao("jmp " + rootFim);
             Assembly.addInstrucao(rootVerdadeiro + ":");
+            Assembly.addInstrucao("mov Al, 0ffh");
             Assembly.addInstrucao("mov Ax, 1");
             Assembly.addInstrucao(rootFim + ":");
-            atributosExp.endereco = Memoria.novoTempInt();
+            atributosExpS.endereco = Memoria.novoTempInt();
             Assembly.addInstrucao("mov DS:["+ atributosExpS.endereco + "], Ax");
         }
 
