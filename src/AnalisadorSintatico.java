@@ -43,7 +43,7 @@ public class AnalisadorSintatico {
      *      writeln'(' Exp {, Exp} ')';
      */
 
-    public void C () throws Exception {
+    public void C() throws Exception {
         int linha;
 
         if(Globais.registroAtual.getToken().equals(Token.ID)) {
@@ -80,15 +80,15 @@ public class AnalisadorSintatico {
                 casaToken(Token.PONTO_E_VIRGULA);
 
                 // regra geracao 28
-                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp1.endereco + "]");
+                Assembly.addInstrucao("mov DI, DS:[" + atributosExp1.endereco + "]");
                 Assembly.addInstrucao("mov Bx, DS:[" + atributosExp2.endereco + "]");
                 if (registroId.tipoConstante == TipoConstante.INTEIRO) {
-                    Assembly.addInstrucao("add Ax, Ax");
+                    Assembly.addInstrucao("add DI, DI");
                 } else if (Globais.debug && registroId.tipoConstante != TipoConstante.CARACTERE) {
                     throw new Exception(("Tipo não é int nem char"));
                 }
-                Assembly.addInstrucao("add Ax, " + registroId.endereco);
-                Assembly.addInstrucao("mov DS:[Ax], Bx");
+                Assembly.addInstrucao("add DI, " + registroId.endereco);
+                Assembly.addInstrucao("mov DS:[DI], Bx");
             } else {
                 casaToken(Token.IGUAL);
                 AtributosRegra atributosExp = Exp();
@@ -117,13 +117,25 @@ public class AnalisadorSintatico {
                     }
                 }
 
-                // regra geracao 27 - TODO fazer caso string e vetor?
-                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
-                Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
+                // regra geracao 27
+                if (!atributosExp.isArranjo() || atributosExp.tipoConstante != TipoConstante.STRING) {
+                    String registrador = registroId.tipoConstante == TipoConstante.INTEIRO ? "Ax" : "Al";
+                    Assembly.addInstrucao("mov " + registrador + ", DS:[" + atributosExp.endereco + "]");
+                    Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], " + registrador);
+                } else {
+                    for (int i = 0; i <= atributosExp.tamanho; i++) {
+                        int mult = registroId.tipoConstante == TipoConstante.INTEIRO ? 2 : 1;
+                        String registrador = registroId.tipoConstante == TipoConstante.INTEIRO ? "Ax" : "Al";
+                        Assembly.addInstrucao("mov " + registrador + ", DS:[" + (atributosExp.endereco  + (i * mult)) + "]");
+                        Assembly.addInstrucao("mov DS:[" + (registroId.endereco + i * mult) + "], " + registrador);
+                    }
+                }
                 casaToken(Token.PONTO_E_VIRGULA);
             }
 
-        } else if (Globais.registroAtual.getToken().equals(Token.FOR)) {
+        }
+
+        else if (Globais.registroAtual.getToken().equals(Token.FOR)) {
             casaToken(Token.FOR);
             Registro registroId = Globais.registroAtual;
             casaToken(Token.ID);
@@ -172,7 +184,7 @@ public class AnalisadorSintatico {
             Assembly.addInstrucao("cmp Ax, Bx");
             Assembly.addInstrucao("jg " + rotFim);
 
-
+            int step = 1;
             if(Globais.registroAtual.getToken().equals(Token.STEP)) {
                 casaToken(Token.STEP);
                 Registro registroValor = Globais.registroAtual;
@@ -182,6 +194,9 @@ public class AnalisadorSintatico {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
+
+                // regra geracao 47
+                step = Integer.valueOf(registroValor.lexema);
             }
 
             casaToken(Token.DO);
@@ -189,18 +204,21 @@ public class AnalisadorSintatico {
 
             // regra geracao 32
             Assembly.addInstrucao("mov Ax, DS:[" + registroId.endereco + "]");
-            Assembly.addInstrucao("add Ax, 1");
+            Assembly.addInstrucao("add Ax, " + step);
             Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
             Assembly.addInstrucao("jmp " + rotInicio);
 
             // regra geracao 33
             Assembly.addInstrucao(rotFim + ":");
 
-        } else if (Globais.registroAtual.getToken().equals(Token.IF)) {
+        }
+
+        else if (Globais.registroAtual.getToken().equals(Token.IF)) {
             casaToken(Token.IF);
 
             // regra geracao 34
             String rotFalso = Rotulos.geraRotulo();
+            String rotFim = Rotulos.geraRotulo();
 
             AtributosRegra atributosExp = Exp();
             // regra 28 TODO
@@ -208,6 +226,7 @@ public class AnalisadorSintatico {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
 
             // regra geracao 35
             Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "]");
@@ -228,6 +247,7 @@ public class AnalisadorSintatico {
                     Globais.registroAtual.getToken().equals(Token.WRITELN)) {
 
                 C();
+                Assembly.addInstrucao("jmp "+rotFim);
 
                 // regra geracao 36
                 Assembly.addInstrucao(rotFalso + ":");
@@ -267,9 +287,11 @@ public class AnalisadorSintatico {
                         (Globais.registroAtual.getToken().equals(Token.WRITE)) ||
                         (Globais.registroAtual.getToken().equals(Token.WRITELN))) {
                     C();
+                    Assembly.addInstrucao("jmp "+rotFim);
                 }
 
                 casaToken(Token.FECHA_CHAVE);
+
 
                 // regra geracao 36
                 Assembly.addInstrucao(rotFalso + ":");
@@ -296,13 +318,17 @@ public class AnalisadorSintatico {
                     }
                     // Fim R
                 }
+
             }
+            Assembly.addInstrucao(rotFim + ":");
             // Fim E
 
-        } else if(Globais.registroAtual.getToken().equals(Token.PONTO_E_VIRGULA)) {
+        }
+        else if(Globais.registroAtual.getToken().equals(Token.PONTO_E_VIRGULA)) {
             casaToken(Token.PONTO_E_VIRGULA);
 
-        } else if(Globais.registroAtual.getToken().equals(Token.READLN)) {
+        }
+        else if (Globais.registroAtual.getToken().equals(Token.READLN)) {
             casaToken(Token.READLN);
             casaToken(Token.ABRE_PARENTESE);
             Registro registroId = Globais.registroAtual;
@@ -313,12 +339,76 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":identificador nao declarado[" + registroId.lexema + "].");
             }
             // regra 31
-            if ((registroId.tipoConstante != TipoConstante.INTEIRO &&
-                    registroId.tipoConstante != TipoConstante.CARACTERE &&
-                    registroId.tipoConstante != TipoConstante.STRING) || registroId.isArranjo()) {
+            if (registroId.tipoConstante == TipoConstante.STRING) {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
+            // regra geracao 44
+            int tamanho;
+            int n;
+            if (registroId.isArranjo()) {
+                tamanho = registroId.tamanho + 3;
+                n = registroId.tamanho;
+            } else {
+                tamanho = 4;
+                n = 1;
+            }
+            n =  n <= 255 ? n : 255;
+            int endereco = Memoria.novoTempArranjoChar(tamanho);
+            String rotulo = Rotulos.geraRotulo();
+
+//            Assembly.addInstrucao(rotulo + ": ; rotulo leitura");
+//            Assembly.addInstrucao("mov Ax, " + n + "; move indice atual");
+//            Assembly.addInstrucao("mov DS:[" + endereco + "], Ax");
+//            Assembly.addInstrucao("mov ah, 09h");
+//            Assembly.addInstrucao("int 21h");
+//            Assembly.addInstrucao("cmp ");
+
+
+
+            Assembly.addInstrucao("mov di, " + (endereco + 2));
+            Assembly.addInstrucao("mov ax, 0");
+            Assembly.addInstrucao("mov cx, 10");
+            Assembly.addInstrucao("mov dx, 1");
+            Assembly.addInstrucao("mov bh, 0");
+            Assembly.addInstrucao("mov bl, ds:[di]");
+            Assembly.addInstrucao("cmp bx, 2Dh");
+            String r0 = Rotulos.geraRotulo();
+
+            Assembly.addInstrucao("jne " + r0);
+            Assembly.addInstrucao("mov dx, -1");
+            Assembly.addInstrucao("add di, 1");
+            Assembly.addInstrucao("mov bl, ds:[di]");
+
+            Assembly.addInstrucao(r0 + ":");
+            Assembly.addInstrucao("push dx");
+            Assembly.addInstrucao("mov dx, 0");
+
+            String r1 = Rotulos.geraRotulo();
+            String r2 = Rotulos.geraRotulo();
+
+            Assembly.addInstrucao(r1 + ":");
+            Assembly.addInstrucao("cmp bx, 0dh");
+            Assembly.addInstrucao("je " + r2);
+            Assembly.addInstrucao("imul cx");
+            Assembly.addInstrucao("add bx, -48");
+            Assembly.addInstrucao("add ax, bx");
+            Assembly.addInstrucao("add di, 1");
+            Assembly.addInstrucao("mov bh, 0");
+            Assembly.addInstrucao("mov bl, ds:[di]");
+            Assembly.addInstrucao("jmp " + r1);
+
+            Assembly.addInstrucao(r2 + ":");
+            Assembly.addInstrucao("pop cx");
+            Assembly.addInstrucao("imul cx");
+
+            //
+//            Assembly.addInstrucao("mov DX, " + endereco);
+//            Assembly.addInstrucao("mov ah, 09h");
+//            Assembly.addInstrucao("int 21h");
+
+
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
 
@@ -330,10 +420,72 @@ public class AnalisadorSintatico {
             // regra 30
             if ((atributosExp.tipoConstante != TipoConstante.INTEIRO &&
                     atributosExp.tipoConstante != TipoConstante.CARACTERE &&
-                    atributosExp.tipoConstante != TipoConstante.STRING) || atributosExp.isArranjo()) {
+                    atributosExp.tipoConstante != TipoConstante.STRING) ||
+                    (atributosExp.tipoConstante == TipoConstante.INTEIRO && atributosExp.isArranjo())) {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
+            // regras geracao 43
+            if (atributosExp.tipoConstante == TipoConstante.STRING) {
+                Assembly.addInstrucao("mov DX, " + atributosExp.endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.CARACTERE && !atributosExp.isArranjo()) {
+                int endereco = Memoria.novoTempArranjoChar(2);
+                Assembly.addInstrucao("mov Al, DS:[" + atributosExp.endereco + "]");
+                Assembly.addInstrucao("mov DS:[" + endereco + "], Al");
+                Assembly.addInstrucao("mov Bl, 24h");
+                Assembly.addInstrucao("mov DS:[" + (endereco + 1) + "], Bl");
+                Assembly.addInstrucao("mov DX, " + endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.CARACTERE && atributosExp.isArranjo()) {
+                Assembly.addInstrucao("mov DX, " + atributosExp.endereco + " ; endereco arranjo caractere");
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.INTEIRO) {
+                int endereco = Memoria.novoTempArranjoChar(8);
+                Assembly.addInstrucao("mov Di, " + endereco);
+                Assembly.addInstrucao("mov Cx, 0 ;contador");
+                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "] ; carrega no Ax");
+                Assembly.addInstrucao("cmp Ax, 0 ;verifica sinal");
+                String rotulo0 = Rotulos.geraRotulo();
+                Assembly.addInstrucao("jge " + rotulo0 + "; salta se número positivo");
+                Assembly.addInstrucao("mov bl, 2Dh ;senão, escreve sinal –");
+                Assembly.addInstrucao("mov ds:[di], bl");
+                Assembly.addInstrucao("mov di, 1 ;incrementa índice");
+                Assembly.addInstrucao("neg ax ; toma módulo do número");
+                Assembly.addInstrucao(rotulo0 + ":");
+                Assembly.addInstrucao("mov bx, 10 ; divisor");
+
+                String rotulo1 = Rotulos.geraRotulo();
+                Assembly.addInstrucao(rotulo1 + ":");
+                Assembly.addInstrucao("add cx, 1 ;incrementa contador");
+                Assembly.addInstrucao("mov dx, 0 ;estende 32bits p/ div.");
+                Assembly.addInstrucao("idiv bx ;divide DXAX por BX");
+                Assembly.addInstrucao("push dx ;empilha valor do resto");
+                Assembly.addInstrucao("cmp ax, 0 ;verifica se quoc. é 0");
+                Assembly.addInstrucao("jne " + rotulo1 + " ;se não é 0, continua");
+
+                String rotulo2 = Rotulos.geraRotulo();
+                Assembly.addInstrucao(rotulo2 + ":");
+                Assembly.addInstrucao("pop dx ;desempilha valor");
+                Assembly.addInstrucao("add dx, 30h ;transforma em caractere");
+                Assembly.addInstrucao("mov ds:[di],dl ;escreve caractere");
+                Assembly.addInstrucao("add di, 1 ;incrementa base");
+                Assembly.addInstrucao("add cx, -1 ;decrementa contador");
+                Assembly.addInstrucao("cmp cx, 0 ;verifica pilha vazia");
+                Assembly.addInstrucao("jne " + rotulo2 + " ;se não pilha vazia, loop");
+
+                Assembly.addInstrucao("mov dl, 024h ;fim de string");
+                Assembly.addInstrucao("mov ds:[di], dl ;grava '$'");
+
+                Assembly.addInstrucao("mov dx, " + endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            }
+
 
             while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
                 casaToken(Token.VIRGULA);
@@ -341,10 +493,72 @@ public class AnalisadorSintatico {
                 // regra 30
                 if ((atributosExp2.tipoConstante != TipoConstante.INTEIRO &&
                         atributosExp2.tipoConstante != TipoConstante.CARACTERE &&
-                        atributosExp2.tipoConstante != TipoConstante.STRING) || atributosExp2.isArranjo()) {
+                        atributosExp2.tipoConstante != TipoConstante.STRING) ||
+                        (atributosExp2.tipoConstante == TipoConstante.INTEIRO && atributosExp2.isArranjo())) {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
+
+                // regras geracao 43
+                if (atributosExp2.tipoConstante == TipoConstante.STRING) {
+                    Assembly.addInstrucao("mov DX, " + atributosExp2.endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.CARACTERE && !atributosExp2.isArranjo()) {
+                    int endereco = Memoria.novoTempArranjoChar(2);
+                    Assembly.addInstrucao("mov Ax, DS:[" + atributosExp2.endereco + "]");
+                    Assembly.addInstrucao("mov DS:[" + endereco + "], Ax");
+                    Assembly.addInstrucao("mov Bx, 24h");
+                    Assembly.addInstrucao("mov DS:[" + (endereco + 1) + "], Bx");
+                    Assembly.addInstrucao("mov DX, " + endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.CARACTERE && atributosExp2.isArranjo()) {
+                    Assembly.addInstrucao("mov DX, " + atributosExp2.endereco + " ; endereco arranjo caractere");
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.INTEIRO) {
+                    int endereco = Memoria.novoTempArranjoChar(8);
+                    Assembly.addInstrucao("mov Di, " + endereco);
+                    Assembly.addInstrucao("mov Cx, 0 ;contador");
+                    Assembly.addInstrucao("mov Ax, DS:[" + atributosExp2.endereco + "] ; carrega no Ax");
+                    Assembly.addInstrucao("cmp Ax, 0 ;verifica sinal");
+                    String rotulo0 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao("jge " + rotulo0 + "; salta se número positivo");
+                    Assembly.addInstrucao("mov bl, 2Dh ;senão, escreve sinal –");
+                    Assembly.addInstrucao("mov ds:[di], bl");
+                    Assembly.addInstrucao("mov di, 1 ;incrementa índice");
+                    Assembly.addInstrucao("neg ax ; toma módulo do número");
+                    Assembly.addInstrucao(rotulo0 + ":");
+                    Assembly.addInstrucao("mov bx, 10 ; divisor");
+
+                    String rotulo1 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao(rotulo1 + ":");
+                    Assembly.addInstrucao("add cx, 1 ;incrementa contador");
+                    Assembly.addInstrucao("mov dx, 0 ;estende 32bits p/ div.");
+                    Assembly.addInstrucao("idiv bx ;divide DXAX por BX");
+                    Assembly.addInstrucao("push dx ;empilha valor do resto");
+                    Assembly.addInstrucao("cmp ax, 0 ;verifica se quoc. é 0");
+                    Assembly.addInstrucao("jne " + rotulo1 + " ;se não é 0, continua");
+
+                    String rotulo2 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao(rotulo2 + ":");
+                    Assembly.addInstrucao("pop dx ;desempilha valor");
+                    Assembly.addInstrucao("add dx, 30h ;transforma em caractere");
+                    Assembly.addInstrucao("mov ds:[di],dl ;escreve caractere");
+                    Assembly.addInstrucao("add di, 1 ;incrementa base");
+                    Assembly.addInstrucao("add cx, -1 ;decrementa contador");
+                    Assembly.addInstrucao("cmp cx, 0 ;verifica pilha vazia");
+                    Assembly.addInstrucao("jne " + rotulo2 + " ;se não pilha vazia, loop");
+
+                    Assembly.addInstrucao("mov dl, 024h ;fim de string");
+                    Assembly.addInstrucao("mov ds:[di], dl ;grava '$'");
+
+                    Assembly.addInstrucao("mov dx, " + endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                }
+
             }
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
@@ -358,10 +572,79 @@ public class AnalisadorSintatico {
             // regra 30
             if ((atributosExp.tipoConstante != TipoConstante.INTEIRO &&
                     atributosExp.tipoConstante != TipoConstante.CARACTERE &&
-                    atributosExp.tipoConstante != TipoConstante.STRING) || atributosExp.isArranjo()) {
+                    atributosExp.tipoConstante != TipoConstante.STRING) ||
+                    (atributosExp.tipoConstante == TipoConstante.INTEIRO && atributosExp.isArranjo())) {
                 linha = analisadorLexico.gerenciadorInput.linha;
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
+
+            // regras geracao 43
+            if (atributosExp.tipoConstante == TipoConstante.STRING) {
+                Assembly.addInstrucao("mov DX, " + atributosExp.endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.CARACTERE && !atributosExp.isArranjo()) {
+                int endereco = Memoria.novoTempArranjoChar(2);
+                Assembly.addInstrucao("mov Al, DS:[" + atributosExp.endereco + "]");
+                Assembly.addInstrucao("mov DS:[" + endereco + "], Al");
+                Assembly.addInstrucao("mov Bl, 24h");
+                Assembly.addInstrucao("mov DS:[" + (endereco + 1) + "], Bl");
+                Assembly.addInstrucao("mov DX, " + endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.CARACTERE && atributosExp.isArranjo()) {
+                Assembly.addInstrucao("mov DX, " + atributosExp.endereco + " ; endereco arranjo caractere");
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            } else if (atributosExp.tipoConstante == TipoConstante.INTEIRO) {
+                int endereco = Memoria.novoTempArranjoChar(8);
+                Assembly.addInstrucao("mov Di, " + endereco);
+                Assembly.addInstrucao("mov Cx, 0 ;contador");
+                Assembly.addInstrucao("mov Ax, DS:[" + atributosExp.endereco + "] ; carrega no Ax");
+                Assembly.addInstrucao("cmp Ax, 0 ;verifica sinal");
+                String rotulo0 = Rotulos.geraRotulo();
+                Assembly.addInstrucao("jge " + rotulo0 + "; salta se número positivo");
+                Assembly.addInstrucao("mov bl, 2Dh ;senão, escreve sinal –");
+                Assembly.addInstrucao("mov ds:[di], bl");
+                Assembly.addInstrucao("mov di, 1 ;incrementa índice");
+                Assembly.addInstrucao("neg ax ; toma módulo do número");
+                Assembly.addInstrucao(rotulo0 + ":");
+                Assembly.addInstrucao("mov bx, 10 ; divisor");
+
+                String rotulo1 = Rotulos.geraRotulo();
+                Assembly.addInstrucao(rotulo1 + ":");
+                Assembly.addInstrucao("add cx, 1 ;incrementa contador");
+                Assembly.addInstrucao("mov dx, 0 ;estende 32bits p/ div.");
+                Assembly.addInstrucao("idiv bx ;divide DXAX por BX");
+                Assembly.addInstrucao("push dx ;empilha valor do resto");
+                Assembly.addInstrucao("cmp ax, 0 ;verifica se quoc. é 0");
+                Assembly.addInstrucao("jne " + rotulo1 + " ;se não é 0, continua");
+
+                String rotulo2 = Rotulos.geraRotulo();
+                Assembly.addInstrucao(rotulo2 + ":");
+                Assembly.addInstrucao("pop dx ;desempilha valor");
+                Assembly.addInstrucao("add dx, 30h ;transforma em caractere");
+                Assembly.addInstrucao("mov ds:[di],dl ;escreve caractere");
+                Assembly.addInstrucao("add di, 1 ;incrementa base");
+                Assembly.addInstrucao("add cx, -1 ;decrementa contador");
+                Assembly.addInstrucao("cmp cx, 0 ;verifica pilha vazia");
+                Assembly.addInstrucao("jne " + rotulo2 + " ;se não pilha vazia, loop");
+
+                Assembly.addInstrucao("mov dl, 024h ;fim de string");
+                Assembly.addInstrucao("mov ds:[di], dl ;grava '$'");
+
+                Assembly.addInstrucao("mov dx, " + endereco);
+                Assembly.addInstrucao("mov ah, 09h");
+                Assembly.addInstrucao("int 21h");
+            }
+
+            Assembly.addInstrucao("mov ah, 02h");
+            Assembly.addInstrucao("mov dl, 0Dh");
+            Assembly.addInstrucao("int 21h");
+            Assembly.addInstrucao("mov DL, 0Ah");
+            Assembly.addInstrucao("int 21h");
+
+
 
             while (Globais.registroAtual.getToken().equals(Token.VIRGULA)) {
                 casaToken(Token.VIRGULA);
@@ -369,10 +652,77 @@ public class AnalisadorSintatico {
                 // regra 30
                 if ((atributosExp2.tipoConstante != TipoConstante.INTEIRO &&
                         atributosExp2.tipoConstante != TipoConstante.CARACTERE &&
-                        atributosExp2.tipoConstante != TipoConstante.STRING) || atributosExp2.isArranjo()) {
+                        atributosExp2.tipoConstante != TipoConstante.STRING) ||
+                        (atributosExp2.tipoConstante == TipoConstante.INTEIRO && atributosExp2.isArranjo())) {
                     linha = analisadorLexico.gerenciadorInput.linha;
                     throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
                 }
+
+                // regras geracao 43
+                if (atributosExp2.tipoConstante == TipoConstante.STRING) {
+                    Assembly.addInstrucao("mov DX, " + atributosExp2.endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.CARACTERE && !atributosExp2.isArranjo()) {
+                    int endereco = Memoria.novoTempArranjoChar(2);
+                    Assembly.addInstrucao("mov Al, DS:[" + atributosExp2.endereco + "]");
+                    Assembly.addInstrucao("mov DS:[" + endereco + "], Al");
+                    Assembly.addInstrucao("mov Bl, 24h");
+                    Assembly.addInstrucao("mov DS:[" + (endereco + 1) + "], Bl");
+                    Assembly.addInstrucao("mov DX, " + endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.CARACTERE && atributosExp2.isArranjo()) {
+                    Assembly.addInstrucao("mov DX, " + atributosExp2.endereco + " ; endereco arranjo caractere");
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                } else if (atributosExp2.tipoConstante == TipoConstante.INTEIRO) {
+                    int endereco = Memoria.novoTempArranjoChar(8);
+                    Assembly.addInstrucao("mov Di, " + endereco);
+                    Assembly.addInstrucao("mov Cx, 0 ;contador");
+                    Assembly.addInstrucao("mov Ax, DS:[" + atributosExp2.endereco + "] ; carrega no Ax");
+                    Assembly.addInstrucao("cmp Ax, 0 ;verifica sinal");
+                    String rotulo0 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao("jge " + rotulo0 + "; salta se número positivo");
+                    Assembly.addInstrucao("mov bl, 2Dh ;senão, escreve sinal –");
+                    Assembly.addInstrucao("mov ds:[di], bl");
+                    Assembly.addInstrucao("mov di, 1 ;incrementa índice");
+                    Assembly.addInstrucao("neg ax ; toma módulo do número");
+                    Assembly.addInstrucao(rotulo0 + ":");
+                    Assembly.addInstrucao("mov bx, 10 ; divisor");
+
+                    String rotulo1 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao(rotulo1 + ":");
+                    Assembly.addInstrucao("add cx, 1 ;incrementa contador");
+                    Assembly.addInstrucao("mov dx, 0 ;estende 32bits p/ div.");
+                    Assembly.addInstrucao("idiv bx ;divide DXAX por BX");
+                    Assembly.addInstrucao("push dx ;empilha valor do resto");
+                    Assembly.addInstrucao("cmp ax, 0 ;verifica se quoc. é 0");
+                    Assembly.addInstrucao("jne " + rotulo1 + " ;se não é 0, continua");
+
+                    String rotulo2 = Rotulos.geraRotulo();
+                    Assembly.addInstrucao(rotulo2 + ":");
+                    Assembly.addInstrucao("pop dx ;desempilha valor");
+                    Assembly.addInstrucao("add dx, 30h ;transforma em caractere");
+                    Assembly.addInstrucao("mov ds:[di],dl ;escreve caractere");
+                    Assembly.addInstrucao("add di, 1 ;incrementa base");
+                    Assembly.addInstrucao("add cx, -1 ;decrementa contador");
+                    Assembly.addInstrucao("cmp cx, 0 ;verifica pilha vazia");
+                    Assembly.addInstrucao("jne " + rotulo2 + " ;se não pilha vazia, loop");
+
+                    Assembly.addInstrucao("mov dl, 024h ;fim de string");
+                    Assembly.addInstrucao("mov ds:[di], dl ;grava '$'");
+
+                    Assembly.addInstrucao("mov dx, " + endereco);
+                    Assembly.addInstrucao("mov ah, 09h");
+                    Assembly.addInstrucao("int 21h");
+                }
+
+                Assembly.addInstrucao("mov ah, 02h");
+                Assembly.addInstrucao("mov dl, 0Dh");
+                Assembly.addInstrucao("int 21h");
+                Assembly.addInstrucao("mov DL, 0Ah");
+                Assembly.addInstrucao("int 21h");
             }
             casaToken(Token.FECHA_PARENTESE);
             casaToken(Token.PONTO_E_VIRGULA);
@@ -385,26 +735,12 @@ public class AnalisadorSintatico {
      */
 
     public void S () throws Exception {
-        Assembly.addInstrucao("sseg SEGMENT STACK ;inicia segmento pilha");
-        Assembly.addInstrucao("byte 4000h DUP(?) ;dimensiona pilha");
-        Assembly.addInstrucao("sseg ENDS ;fim seg. pilha");
-
-        Assembly.addInstrucao("dseg SEGMENT PUBLIC ;início seg. dados");
-        Assembly.addInstrucao("byte 4000h DUP(?) ;dimensiona pilha");
-        Assembly.addInstrucao("sseg ENDS ;fim seg. pilha");
 
         while (Globais.registroAtual.getToken().equals(Token.VAR) ||
                 Globais.registroAtual.getToken().equals(Token.CONST)) {
 
             D();
         }
-
-        Assembly.addInstrucao("dseg ENDS ;fim seg. dados");
-        Assembly.addInstrucao("cseg SEGMENT PUBLIC ;início seg. código");
-        Assembly.addInstrucao("ASSUME CS:cseg, DS:dseg");
-        Assembly.addInstrucao("strt:");
-        Assembly.addInstrucao("mov AX, dseg");
-        Assembly.addInstrucao("mov ds, AX");
 
         while (Globais.registroAtual.getToken().equals(Token.ID) ||
                 Globais.registroAtual.getToken().equals(Token.FOR) ||
@@ -417,11 +753,6 @@ public class AnalisadorSintatico {
             C();
         }
         casaToken(Token.EOF);
-
-        Assembly.addInstrucao("mov ah, 4Ch");
-        Assembly.addInstrucao("int 21h");
-        Assembly.addInstrucao("cseg ENDS ;fim seg. código");
-        Assembly.addInstrucao("END strt ;fim programa");
     }
 
     /**
@@ -517,22 +848,22 @@ public class AnalisadorSintatico {
 
                         // regra geracao 41
                         if (registroValor2.tipoConstante == TipoConstante.INTEIRO) {
-                            Assembly.addInstrucao("mov Ax, " + registroValor2.lexema);
+                            String lexema = registroValor2.lexema;
                             if (condNeg) {
-                                Assembly.addInstrucao("mul Ax, -1");
+                                lexema = "-" + lexema;
                             }
+                            Assembly.addDeclaracao("sword " + lexema);
                         } else if (registroValor2.tipoConstante == TipoConstante.CARACTERE) {
                             if (registroValor2.lexema.length() == 3) { // é char sozinho
                                 int caractere = (int) registroValor2.lexema.charAt(1);
-                                Assembly.addInstrucao("mov Ax, " + caractere);
+                                Assembly.addDeclaracao("byte " + caractere);
                             } else if (registroValor2.lexema.length() == 4) {
                                 String valor = registroValor2.lexema.substring(2) + "h";
-                                Assembly.addInstrucao("mov Ax, " + valor);
+                                Assembly.addDeclaracao("byte " + valor);
                             } else if (Globais.debug) {
                                 throw new Exception("Char deveria ser tamanho 3 ou 5");
                             }
                         }
-                        Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
                     } else {
                         casaToken(Token.ABRE_COLCHETE);
                         Registro registroValor = Globais.registroAtual;
@@ -555,9 +886,11 @@ public class AnalisadorSintatico {
                         //regra geracao 42
                         if (condChar) {
                             registroId.endereco = Memoria.novoEnderecoArranjoChar(Integer.valueOf(registroValor.lexema));
+                            Assembly.addDeclaracao("byte " + registroId.tamanho + " DUP(?)");
                         }
                         if (condInteger) {
                             registroId.endereco = Memoria.novoEnderecoArranjoInt(Integer.valueOf(registroValor.lexema));
+                            Assembly.addDeclaracao("sword " + registroId.tamanho + " DUP(?)");
                         }
 
                     }
@@ -568,9 +901,12 @@ public class AnalisadorSintatico {
                     // regra geracao 37
                     if (condChar) {
                         registroId.endereco = Memoria.novoEnderecoChar();
+                        Assembly.addDeclaracao("byte ?");
                     }
                     if (condInteger) {
                         registroId.endereco = Memoria.novoEnderecoInt();
+                        Assembly.addDeclaracao("sword ?");
+
                     }
                 }
 
@@ -592,10 +928,10 @@ public class AnalisadorSintatico {
                     if (condInteger) {
                         registroId.tipoConstante = TipoConstante.INTEIRO;
                     }
-
+                    entrou = false;
                     if (Globais.registroAtual.getToken().equals(Token.IGUAL) ||
                             Globais.registroAtual.getToken().equals(Token.ABRE_COLCHETE)) {
-
+                        entrou = true;
                         // COMECO N
                         AtributosRegra atributosN;
 
@@ -636,22 +972,22 @@ public class AnalisadorSintatico {
 
                             // regra geracao 41
                             if (registroValor2.tipoConstante == TipoConstante.INTEIRO) {
-                                Assembly.addInstrucao("mov Ax, " + registroValor2.lexema);
+                                String lexema = registroValor2.lexema;
                                 if (condNeg) {
-                                    Assembly.addInstrucao("mul Ax, -1");
+                                    lexema = "-" + lexema;
                                 }
+                                Assembly.addDeclaracao("sword " + lexema);
                             } else if (registroValor2.tipoConstante == TipoConstante.CARACTERE) {
                                 if (registroValor2.lexema.length() == 3) { // é char sozinho
                                     int caractere = (int) registroValor2.lexema.charAt(1);
-                                    Assembly.addInstrucao("mov Ax, " + caractere);
+                                    Assembly.addDeclaracao("byte " + caractere);
                                 } else if (registroValor2.lexema.length() == 4) {
                                     String valor = registroValor2.lexema.substring(2) + "h";
-                                    Assembly.addInstrucao("mov Ax, " + valor);
+                                    Assembly.addDeclaracao("byte " + valor);
                                 } else if (Globais.debug) {
                                     throw new Exception("Char deveria ser tamanho 3 ou 5");
                                 }
                             }
-                            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
                         } else {
                             casaToken(Token.ABRE_COLCHETE);
                             Registro registroValor = Globais.registroAtual;
@@ -666,19 +1002,33 @@ public class AnalisadorSintatico {
                             }
                             registroId.tamanho = Integer.valueOf(registroValor.lexema);
                             casaToken(Token.FECHA_COLCHETE);
+
                             //regra geracao 42
-                            if (Globais.debug && condChar && condInteger) {
-                                throw new Exception("condchar e condInteger ao mesmo tempo");
-                            }
                             if (condChar) {
                                 registroId.endereco = Memoria.novoEnderecoArranjoChar(Integer.valueOf(registroValor.lexema));
+                                Assembly.addDeclaracao("byte " + registroId.tamanho + " DUP(?)");
                             }
                             if (condInteger) {
                                 registroId.endereco = Memoria.novoEnderecoArranjoInt(Integer.valueOf(registroValor.lexema));
+                                Assembly.addDeclaracao("sword " + registroId.tamanho + " DUP(?)");
                             }
                         }
                         // FINAL N
                     }
+
+                    if (!entrou) {
+                        // regra geracao 37
+                        if (condChar) {
+                            registroId.endereco = Memoria.novoEnderecoChar();
+                            Assembly.addDeclaracao("byte ?");
+                        }
+                        if (condInteger) {
+                            registroId.endereco = Memoria.novoEnderecoInt();
+                            Assembly.addDeclaracao("sword ?");
+
+                        }
+                    }
+
                 }
                 casaToken(Token.PONTO_E_VIRGULA);
             } while (Globais.registroAtual.getToken().equals(Token.CHAR) ||
@@ -737,22 +1087,22 @@ public class AnalisadorSintatico {
 
             // regra geracao 41
             if (registroConstante.tipoConstante == TipoConstante.INTEIRO) {
-                Assembly.addInstrucao("mov Ax, " + registroConstante.lexema);
+                String lexema = registroConstante.lexema;
                 if (condNeg) {
-                    Assembly.addInstrucao("mul Ax, -1");
+                    lexema = "-" + lexema;
                 }
+                Assembly.addDeclaracao("sword " + lexema);
             } else if (registroConstante.tipoConstante == TipoConstante.CARACTERE) {
                 if (registroConstante.lexema.length() == 3) { // é char sozinho
                     int caractere = (int) registroConstante.lexema.charAt(1);
-                    Assembly.addInstrucao("mov Ax, " + caractere);
+                    Assembly.addDeclaracao("byte " + caractere);
                 } else if (registroConstante.lexema.length() == 4) {
                     String valor = registroConstante.lexema.substring(2) + "h";
-                    Assembly.addInstrucao("mov Ax, " + valor);
+                    Assembly.addDeclaracao("byte " + valor);
                 } else if (Globais.debug) {
                     throw new Exception("Char deveria ser tamanho 3 ou 5");
                 }
             }
-            Assembly.addInstrucao("mov DS:[" + registroId.endereco + "], Ax");
         }
     }
 
@@ -801,7 +1151,7 @@ public class AnalisadorSintatico {
         AtributosRegra atributosExpS = ExpS();
 
         // regra 17
-        atributosExp = new AtributosRegra(atributosExpS.tipoConstante);
+        atributosExp = new AtributosRegra(atributosExpS.tipoConstante, atributosExpS.tamanho);
 
         // regra 47
         boolean condIgualdade = false;
@@ -880,32 +1230,41 @@ public class AnalisadorSintatico {
 
             // regra geracao 24
             Assembly.addInstrucao("mov Ax, DS:["+ atributosExpS.endereco + "]");
-            Assembly.addInstrucao("cwd");
             Assembly.addInstrucao("mov Bx, DS:["+ atributosExpS2.endereco + "]");
-            Assembly.addInstrucao("cwd");
+            Assembly.addInstrucao("mov Ah, 0");
+            Assembly.addInstrucao("mov Bh, 0");
+
             String rootVerdadeiro = Rotulos.geraRotulo();
             Assembly.addInstrucao("cmp Ax, Bx");
             if (condIgualdade) {
                 Assembly.addInstrucao("je " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condDif) {
                 Assembly.addInstrucao("jne " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMenor) {
                 Assembly.addInstrucao("jl " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMaior) {
                 Assembly.addInstrucao("jg " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMenorIgual) {
                 Assembly.addInstrucao("jle " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             } else if(condMaiorIgual) {
                 Assembly.addInstrucao("jge " + rootVerdadeiro);
+                Assembly.addInstrucao("mov al, 0");
             }
             Assembly.addInstrucao("mov Ax, 0");
             String rootFim = Rotulos.geraRotulo();
             Assembly.addInstrucao("jmp " + rootFim);
             Assembly.addInstrucao(rootVerdadeiro + ":");
+            Assembly.addInstrucao("mov Al, 0ffh");
             Assembly.addInstrucao("mov Ax, 1");
             Assembly.addInstrucao(rootFim + ":");
-            atributosExp.endereco = Memoria.novoTempInt();
+            atributosExpS.endereco = Memoria.novoTempInt();
             Assembly.addInstrucao("mov DS:["+ atributosExpS.endereco + "], Ax");
+            atributosExp.endereco = atributosExpS.endereco;
         }
 
         return atributosExp;
@@ -943,7 +1302,7 @@ public class AnalisadorSintatico {
                 throw new ExcecaoSemantica(linha + ":tipos incompativeis.");
             }
         }
-        atributosExpS = new AtributosRegra(atributosT1.tipoConstante);
+        atributosExpS = new AtributosRegra(atributosT1.tipoConstante, atributosT1.tamanho);
 
         // regra geracao 12
         atributosExpS.endereco = atributosT1.endereco;
@@ -997,19 +1356,22 @@ public class AnalisadorSintatico {
             }
 
             // regra geracao 16
-            Assembly.addInstrucao("mov Ax, DS:[" + atributosExpS.endereco + "]");
-            Assembly.addInstrucao("mov Ax, DS:[" + atributosT2.endereco + "]");
+            String registradorA = atributosT1.tipoConstante == TipoConstante.INTEIRO ? "Ax" : "Al";
+            String registradorB = atributosT1.tipoConstante == TipoConstante.INTEIRO ? "Bx" : "AB";
+
+            Assembly.addInstrucao("mov " + registradorA + ", DS:[" + atributosExpS.endereco + "]");
+            Assembly.addInstrucao("mov " + registradorB + ", DS:[" + atributosT2.endereco + "]");
             atributosExpS.endereco = Memoria.novoTempInt();
 
             if (condMais) {
-                Assembly.addInstrucao("add Ax, Bx");
-                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+                Assembly.addInstrucao("add " + registradorA + ", " + registradorB);
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], " + registradorA);
             } else if (condMenos) {
-                Assembly.addInstrucao("sub Ax, Bx");
-                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+                Assembly.addInstrucao("sub " + registradorA + ", " + registradorB);
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], " + registradorA);
             } else if (condLog) {
-                Assembly.addInstrucao("or Ax, Bx");
-                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], Ax");
+                Assembly.addInstrucao("or " + registradorA + ", " + registradorB);
+                Assembly.addInstrucao("mov DS:[" + atributosExpS.endereco + "], " + registradorA);
             }
 
         }
@@ -1032,6 +1394,7 @@ public class AnalisadorSintatico {
 
         // Regra geracao 6
         atributosT.endereco = atributosF1.endereco;
+        atributosT.tamanho = atributosF1.tamanho;
 
         while (Globais.registroAtual.getToken().equals(Token.ASTERISCO) ||
                 Globais.registroAtual.getToken().equals(Token.AND) ||
@@ -1161,10 +1524,26 @@ public class AnalisadorSintatico {
             // Regra geracao 2
             if (registroValor.tipoConstante == TipoConstante.INTEIRO) {
                 atributosF.endereco = Memoria.novoTempInt();
+                Assembly.addInstrucao("mov Ax, " + registroValor.lexema);
+                Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Ax");
             } else if (registroValor.tipoConstante == TipoConstante.CARACTERE) {
                 atributosF.endereco = Memoria.novoTempChar();
+                if (registroValor.lexema.length() == 3) { // é char sozinho
+                    int caractere = (int) registroValor.lexema.charAt(1);
+                    Assembly.addInstrucao("mov Al, " + caractere);
+                    Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Al");
+                } else if (registroValor.lexema.length() == 4) {
+                    String valor = registroValor.lexema.substring(2) + "h";
+                    Assembly.addInstrucao("mov Al, " + valor);
+                    Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Al");
+                } else if (Globais.debug) {
+                    throw new Exception("Char deveria ser tamanho 3 ou 5");
+                }
             } else if (registroValor.tipoConstante == TipoConstante.STRING) {
-                atributosF.endereco = Memoria.novoTempArranjoChar(registroValor.lexema.length() - 2);
+                registroValor.lexema = registroValor.lexema.substring(0, registroValor.lexema.length() - 1) + "$\"";
+                atributosF.endereco = Memoria.novoEnderecoArranjoChar(registroValor.lexema.length() - 2);
+                Assembly.addDeclaracao("byte " + registroValor.lexema);
+
             } else if (Globais.debug) {
                 throw new Exception("TIpo tem que ser int char ou string");
             }
@@ -1201,9 +1580,10 @@ public class AnalisadorSintatico {
                 if (registroId.tipoConstante == TipoConstante.INTEIRO) {
                     Assembly.addInstrucao("add Ax, Ax");
                 }
-                Assembly.addInstrucao("add Ax, " + registroId.endereco);
-                Assembly.addInstrucao("mov Ax, DS:[Ax]");
-                Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], Ax");
+                Assembly.addInstrucao("add DI, " + registroId.endereco);
+                String registrador = registroId.tipoConstante == TipoConstante.INTEIRO ? "Ax" : "Al";
+                Assembly.addInstrucao("mov " + registrador + ", DS:[DI]");
+                Assembly.addInstrucao("mov DS:[" + atributosF.endereco + "], " + registrador);
                 this.casaToken(Token.FECHA_COLCHETE);
             }
         }

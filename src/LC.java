@@ -29,7 +29,8 @@ public class LC {
 //        try {
             al.setProximo();
             ais.S();
-            Assembly.print();
+//            Assembly.print();
+            Assembly.salvarArquivo("/Users/augusto/masm/teste.asm");
 //        } catch (ExcecaoLexica | ExcecaoSintatica | ExcecaoSemantica e) {
 //            System.out.println(e.getMessage());
 //        }
